@@ -10,6 +10,21 @@
 
 nextflow.enable.dsl=2
 
+log.info """\
+      LIST OF PARAMETERS
+================================
+            GENERAL
+Data-folder      : $params.datadir
+Results-folder   : $params.outdir
+================================
+      INPUT & REFERENCES 
+Input-files      : $params.ont_base_dir
+Reference genome : $params.genomeref 
+================================
+
+================================
+"""
+
 
 // Command line shortcuts, quick entry point:
 
@@ -54,8 +69,22 @@ include { create_personal_genome as crossstitch; prepare_svs_stitch } from './mo
 include { run_quast as quast_hap1; run_quast as quast_hap2; run_quast as quast_hap1_ref; run_quast as quast_hap2_ref } from './modules/quast'
 include { run_mummer as mummer_hap1; run_mummer as mummer_hap2; run_mummer as mummer_hap1_ref; run_mummer as mummer_hap2_ref } from './modules/mummer'
 
+include { run_pycoqc } from './modules/pycoqc'
 // include { create_lra_index; lra_alignment } from './modules/lra'
 
+/*
+* Building slurm pipeline 
+*
+*/
+workflow slurm {
+    // guppy basecalling
+    genomeref = Channel.fromPath( params.genomeref, checkIfExists: true  )
+    basecall( Channel.fromPath( params.ont_base_dir ), genomeref )
+
+    // filtering and trimming
+    filter( basecall.out.fastqs.collect() )
+    pigz( filter.out.fastq_trimmed )
+}
 
 
 /* 
@@ -458,6 +487,8 @@ workflow wgs_analysis_fastq {
     haptagtransfer( longphase_tag.out.haplotagged_bam, shasta.out.assembly )
     hapduptagged( haptagtransfer.out.retagged_bam, haptagtransfer.out.retagged_bamindex, shasta.out.assembly )
 
+    
+
     // quast_hap1( genomeref, hapduptagged.out.hap1, "hap1" )
     // quast_hap1_ref( genomeref, crossstitch.out.hap1, "hap1" )
     // quast_hap2( genomeref, hapduptagged.out.hap2, "hap2" )
@@ -514,3 +545,8 @@ workflow {
 // -m ${Math.floor( $task.memory / $task.cpus ) }
 // ch_reference_fasta.view()
 // ch_reference_index.view()
+workflow.onComplete {
+    println "Pipeline completed at: ${workflow.complete}"
+    println "Time to complete workflow execution: ${workflow.duration}"
+    println "Execution status: ${workflow.success ? 'Succesful' : 'Failed' }"
+}
