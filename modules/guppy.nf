@@ -17,7 +17,7 @@ process basecall_reads {
 
     output:
     path "basecalls/*fastq.gz", emit: fastqs
-    path "basecalls/sequencing_summary.txt"
+    path "basecalls/sequencing_summary.txt", emit: seq_summary 
 
     script:
     """

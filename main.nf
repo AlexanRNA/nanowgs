@@ -14,13 +14,13 @@ log.info """\
       LIST OF PARAMETERS
 ================================
             GENERAL
-Data-folder      : $params.datadir
 Results-folder   : $params.outdir
 ================================
       INPUT & REFERENCES 
 Input-files      : $params.ont_base_dir
 Reference genome : $params.genomeref 
 ================================
+        MINIMAP
 
 ================================
 """
@@ -50,7 +50,7 @@ include { survivor_sv_consensus as survivor } from './modules/survivor'
 include { megalodon; megalodon_aggregate } from './modules/megalodon'
 
 include { medaka_snv_calling as medaka_snv } from './modules/medaka'
-include { deepvariant_snv_calling as deepvariant } from './modules/deepvariant'
+include { deepvariant_snv_calling_slurm  as deepvariant } from './modules/deepvariant'
 // include { deepvariant_snv_calling_gpu_parallel as deepvariant_par } from './modules/deepvariant'
 
 include { run_shasta_assembly as shasta } from './modules/shasta'
@@ -84,6 +84,24 @@ workflow slurm {
     // filtering and trimming
     filter( basecall.out.fastqs.collect() )
     pigz( filter.out.fastq_trimmed )
+
+    // alignment
+    minimap_align_bamout( genomeref, pigz.out.fastqgz )
+
+    // variant calling from alignment
+    deepvariant( minimap_align_bamout.out.bam, minimap_align_bamout.out.idx, genomeref )
+    filter_deepvar( deepvariant.out.indel_snv_vcf )
+    
+    sniffles( minimap_align_bamout.out.bam, minimap_align_bamout.out.idx, genomeref )
+    filtersniffles( sniffles.out.sv_calls )
+
+    // shasta assembly
+    shasta( pigz.out.fastqgz  )
+
+    // QC
+    run_pycoqc ( basecall.out.seq_summary, minimap_align_bamout.out.bam )
+    
+    
 }
 
 

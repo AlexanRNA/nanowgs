@@ -7,8 +7,9 @@ process parallel_gzip {
     label 'mem_low'
     label 'time_low'
     label 'pigz'
+    
 
-    publishDir path: "${params.outdir}/${params.sampleid}/${task.process}/", mode: 'copy'
+    publishDir path: "${params.outdir}/${params.sampleid}/pigz/", mode: 'copy'
 
     input:
     path fastq

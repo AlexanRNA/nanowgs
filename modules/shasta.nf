@@ -7,6 +7,8 @@ process run_shasta_assembly {
     label ( workflow.profile.contains('qsub') ? 'bigmem': 'cpu_high' )
     label ( workflow.profile.contains('qsub') ? null: 'mem_high' )
     label ( workflow.profile.contains('qsub') ? null: 'time_mid' )
+    
+    label ( workflow.profile.contains('slurm') ? 'wice_bigmem' : 'cpu_high')
 
     publishDir path: "${params.outdir}/${params.sampleid}/${task.process}/", mode: 'copy'
 

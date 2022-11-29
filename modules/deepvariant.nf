@@ -27,6 +27,7 @@ process deepvariant_snv_calling {
     output:
     path "deepvar_out/*.vcf.gz", emit: indel_snv_vcf
     path "deepvar_out/*.vcf.gz.tbi", emit: indel_snv_vcf_index
+    path "deepvar_out/*visual_report.html", emit: indel_snv_vcf_html  // TODO test
     // path "deepvar_out/intermediate_files"
     // path "deepvar_out/*.haplotagged.bam", emit: haplotagged_bam
     // path "deepvar_out/*.haplotagged.bam.bai", emit: haplotagged_bam_idx
@@ -64,6 +65,70 @@ process deepvariant_snv_calling {
         # samtools flagstat ./deepvar_out/${params.sampleid}.haplotagged.bam > ./deepvar_out/${params.sampleid}.haplotagged.bam.flagstats
         # samtools idxstats ./deepvar_out/${params.sampleid}.haplotagged.bam > ./deepvar_out/${params.sampleid}.haplotagged.bam.idxstats
         # samtools stats ${params.sampleid}_sorted.bam > ${params.sampleid}_sorted.bam.stats
+        """
+}
+
+/* 
+* SNV and indel calling on aligned reads using PEPPER-Margin-DeepVariant on slurm
+*/
+process deepvariant_snv_calling_slurm {
+    // label 'process_high'
+    label 'deepvariant'
+    // memory requirements are forcing this to be run on a bigmem node / superdome
+    // label ( params.deepvariant_with_gpu ? 'with_gpus': 'bigmemnode' )
+    // label ( workflow.profile.contains('qsub') ? null: 'cpu_high' )
+    label ( workflow.profile.contains('slurm') ? 'wice_gpu': 'cpu_high' ) // ifelse  for slurm/qsub 
+    // label ( params.with_gpu ? null: 'mem_high' )
+    // label ( params.with_gpu ? null: 'time_high' )
+
+    container ( params.deepvariant_with_gpu ? 'kishwars/pepper_deepvariant:r0.8-gpu': 'kishwars/pepper_deepvariant:r0.8' )
+
+    stageInMode 'copy'
+
+    publishDir path: "${params.outdir}/${params.sampleid}/", mode: 'copy'
+
+    input:
+    path sorted_bam
+    path bam_index
+    path genomeref
+    // val step
+    // path genomerefidx
+
+    output:
+    path "deepvar_out/*.vcf.gz", emit: indel_snv_vcf
+    path "deepvar_out/*.vcf.gz.tbi", emit: indel_snv_vcf_index
+    path "deepvar_out/*visual_report.html", emit: indel_snv_vcf_html  // TODO test
+    // path "deepvar_out/intermediate_files"
+    // path "deepvar_out/*.haplotagged.bam", emit: haplotagged_bam
+    // path "deepvar_out/*.haplotagged.bam.bai", emit: haplotagged_bam_idx
+    // path "deepvar_out/*stats"
+
+    script:
+    //def localproc = ( workflow.profile.contains('slurm') ? 36: task.cpus )
+    if ( params.deepvariant_with_gpu ) 
+        """
+        # export CUDA_VISIBLE_DEVICES=${params.gpu_devices}
+        run_pepper_margin_deepvariant call_variant \
+            -b $sorted_bam \
+            -f $genomeref \
+            -o . \
+            -p ${params.sampleid} \
+            -s ${params.sampleid} \
+            -t 16 \
+            --ont_r9_guppy5_sup \
+            -g
+        #    --phased_output
+        """
+    else 
+        """
+        run_pepper_margin_deepvariant call_variant \
+            -b $sorted_bam \
+            -f $genomeref \
+            -o deepvar_out \
+            -p ${params.sampleid} \
+            -s ${params.sampleid} \
+            -t $task.cpus \
+            --ont_r9_guppy5_sup
         """
 }
 

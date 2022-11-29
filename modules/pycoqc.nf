@@ -8,10 +8,10 @@ process run_pycoqc {
     label 'time_low'
     label 'pycoqc'
 
-    publishDir path: "${params.outdir}/${params.sampleid}/${task.process}/", mode: 'copy'
+    publishDir path: "${params.outdir}/${params.sampleid}/pycoqc/", mode: 'copy'
 
     input:
-    path sequencing_summary
+    path seq_summary
     path mapped_bam
 
     output:
