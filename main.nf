@@ -99,7 +99,7 @@ workflow slurm {
     shasta( pigz.out.fastqgz  )
 
     // QC
-    run_pycoqc ( basecall.out.seq_summary, minimap_align_bamout.out.bam )
+    run_pycoqc ( basecall.out.seq_summary, minimap_align_bamout.out.bam, minimap_align_bamout.out.idx )
     
     
 }

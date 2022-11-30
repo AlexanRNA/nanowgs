@@ -13,6 +13,8 @@ process run_pycoqc {
     input:
     path seq_summary
     path mapped_bam
+    path bamidx
+    
 
     output:
     path "*_pycoQC.html"
@@ -20,7 +22,7 @@ process run_pycoqc {
 
     script:
     """
-    pycoQC -f $sequencing_summary \
+    pycoQC -f $seq_summary \
         -a $mapped_bam \
         --min_pass_qual ${params.min_read_qscore} \
         --report_title ${params.sampleid} \

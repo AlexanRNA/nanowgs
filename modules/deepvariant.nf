@@ -85,7 +85,7 @@ process deepvariant_snv_calling_slurm {
 
     stageInMode 'copy'
 
-    publishDir path: "${params.outdir}/${params.sampleid}/", mode: 'copy'
+    publishDir path: "${params.outdir}/${params.sampleid}/deepvar_out", mode: 'copy'
 
     input:
     path sorted_bam
@@ -95,9 +95,9 @@ process deepvariant_snv_calling_slurm {
     // path genomerefidx
 
     output:
-    path "deepvar_out/*.vcf.gz", emit: indel_snv_vcf
-    path "deepvar_out/*.vcf.gz.tbi", emit: indel_snv_vcf_index
-    path "deepvar_out/*visual_report.html", emit: indel_snv_vcf_html  // TODO test
+    path "*.vcf.gz", emit: indel_snv_vcf
+    path "*.vcf.gz.tbi", emit: indel_snv_vcf_index
+    path "*visual_report.html", emit: indel_snv_vcf_html  // TODO test
     // path "deepvar_out/intermediate_files"
     // path "deepvar_out/*.haplotagged.bam", emit: haplotagged_bam
     // path "deepvar_out/*.haplotagged.bam.bai", emit: haplotagged_bam_idx
@@ -124,7 +124,7 @@ process deepvariant_snv_calling_slurm {
         run_pepper_margin_deepvariant call_variant \
             -b $sorted_bam \
             -f $genomeref \
-            -o deepvar_out \
+            -o . \
             -p ${params.sampleid} \
             -s ${params.sampleid} \
             -t $task.cpus \
