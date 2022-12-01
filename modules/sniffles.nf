@@ -8,7 +8,7 @@ process sniffles_sv_calling {
     label 'time_mid'
     label 'sniffles'
 
-    publishDir path: "${params.outdir}/${params.sampleid}/${task.process}/", mode: 'copy'
+    publishDir path: "${params.outdir}/${params.sampleid}/sniffles/", mode: 'copy'
 
     input:
     path sorted_bam

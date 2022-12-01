@@ -15,10 +15,14 @@ log.info """\
 ================================
             GENERAL
 Results-folder   : $params.outdir
+Sample ID:       : $params.sampleid
 ================================
       INPUT & REFERENCES 
 Input-files      : $params.ont_base_dir
 Reference genome : $params.genomeref 
+================================
+        GUPPY 
+Guppy model     : $params.guppy_config
 ================================
         MINIMAP
 
@@ -101,6 +105,16 @@ workflow slurm {
     // QC
     run_pycoqc ( basecall.out.seq_summary, minimap_align_bamout.out.bam, minimap_align_bamout.out.idx )
     
+    // phasing
+    longphase_phase( genomeref, filter_deepvar.out.variants_pass, filtersniffles.out.variants_pass, minimap_align_bamout.out.bam, minimap_align_bamout.out.idx )
+    longphase_tag( longphase_phase.out.snv_indel_phased, longphase_phase.out.sv_phased, minimap_align_bamout.out.bam, minimap_align_bamout.out.idx )
+
+    crossstitch( longphase_phase.out.snv_indel_phased, filtersniffles.out.variants_pass, minimap_align_bamout.out.bam, genomeref, params.karyotype )
+
+    // use reference-based haplotype tags to assure assembly-based haplotypes match reference-based ones
+    haptagtransfer( longphase_tag.out.haplotagged_bam, shasta.out.assembly )
+    hapduptagged( haptagtransfer.out.retagged_bam, haptagtransfer.out.retagged_bamindex, shasta.out.assembly )
+
     
 }
 

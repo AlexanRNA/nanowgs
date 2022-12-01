@@ -8,7 +8,7 @@ process longphase_phase {
     label 'time_low'
     label 'longphase'
 
-    publishDir path: "${params.outdir}/${params.sampleid}/${task.process}/", mode: 'copy'
+    publishDir path: "${params.outdir}/${params.sampleid}/longphase_phase/", mode: 'copy'
 
     input:
     path reference
@@ -46,7 +46,7 @@ process longphase_tag {
     label 'time_low'
     label 'longphase'
 
-    publishDir path: "${params.outdir}/${params.sampleid}/${task.process}/", mode: 'copy'
+    publishDir path: "${params.outdir}/${params.sampleid}/longphase_tag/", mode: 'copy'
 
     input:
     path snv_indel

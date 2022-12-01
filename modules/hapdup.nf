@@ -8,7 +8,7 @@ process hapdup {
     label 'time_mid'
     label 'hapdup'
 
-    publishDir path: "${params.outdir}/${params.sampleid}/${task.process}/", mode: 'copy'
+    publishDir path: "${params.outdir}/${params.sampleid}/", mode: 'copy'
 
     input:
     path bam
@@ -42,7 +42,7 @@ process hapdup_with_haptagged_bam {
     label 'time_mid'
     label 'hapdup'
 
-    publishDir path: "${params.outdir}/${params.sampleid}/${task.process}/", mode: 'copy'
+    publishDir path: "${params.outdir}/${params.sampleid}/", mode: 'copy'
 
     input:
     path haplotaggedbam

@@ -8,7 +8,7 @@ process sam_to_sorted_bam {
     label 'time_mid'
     label 'samtools'
 
-    publishDir path: "${params.outdir}/${params.sampleid}/${task.process}/", mode: 'copy'
+    publishDir path: "${params.outdir}/${params.sampleid}/minimap_alignment/", mode: 'copy'
     // publishDir path: "${params.outdir}/${params.sampleid}/${task.process}/", mode: 'copy',
     //            saveAs: { item -> item.matches("(.*)stats") ? item : null }
 

@@ -10,7 +10,7 @@ process run_shasta_assembly {
     
     label ( workflow.profile.contains('slurm') ? 'wice_bigmem' : 'cpu_high')
 
-    publishDir path: "${params.outdir}/${params.sampleid}/${task.process}/", mode: 'copy'
+    publishDir path: "${params.outdir}/${params.sampleid}/", mode: 'copy'
 
     input:
     path fastq
@@ -18,7 +18,7 @@ process run_shasta_assembly {
 
     output:
     path "shasta_assembly/Assembly.fasta", emit: assembly
-    path "shasta_assembly"
+    path "shasta_assembly/*"
 
     script:
     def localproc = ( workflow.profile.contains('qsub') ? 0: task.cpus )

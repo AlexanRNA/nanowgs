@@ -25,7 +25,7 @@ process svim_sv_filtering {
 
 
 /* 
-* Filtering of SVIM SV calls
+* Filtering of sniffles SV calls
 */
 process sniffles_sv_filtering {
     label 'cpu_low'
@@ -33,7 +33,7 @@ process sniffles_sv_filtering {
     label 'time_low'
     label 'bcftools'
 
-    publishDir path: "${params.outdir}/${params.sampleid}/${task.process}/", mode: 'copy'
+    publishDir path: "${params.outdir}/${params.sampleid}/filtered_sniffles/", mode: 'copy'
 
     input:
     path svs
@@ -61,7 +61,7 @@ process variant_filtering {
     label 'time_low'
     label 'bcftools'
 
-    publishDir path: "${params.outdir}/${params.sampleid}/${task.process}/", mode: 'copy'
+    publishDir path: "${params.outdir}/${params.sampleid}/filtered_deepvar/", mode: 'copy'
     // ,
         // saveAs: { item -> 
         //                 if ( item.matches("(.*)lra(.*)" ) {

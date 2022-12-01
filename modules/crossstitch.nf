@@ -8,7 +8,7 @@ process create_personal_genome {
     label 'time_low'
     label 'crossstitch'
 
-    publishDir path: "${params.outdir}/${params.sampleid}/${task.process}/", mode: 'copy'
+    publishDir path: "${params.outdir}/${params.sampleid}/crossstitch/", mode: 'copy'
 
     input:
     path phased_snps
