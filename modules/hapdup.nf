@@ -109,7 +109,7 @@ process flye_polishing {
 * Generate diploid from a haploid assembly using HapDup while using preassigned haplotagged reads
 */
 process haptagtransfer {
-    label 'cpu_high'
+    label 'cpu_mid'
     label 'mem_high'
     label 'time_mid'
     label 'haptagtransfer'

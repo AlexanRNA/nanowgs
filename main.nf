@@ -74,6 +74,7 @@ include { run_quast as quast_hap1; run_quast as quast_hap2; run_quast as quast_h
 include { run_mummer as mummer_hap1; run_mummer as mummer_hap2; run_mummer as mummer_hap1_ref; run_mummer as mummer_hap2_ref } from './modules/mummer'
 
 include { run_pycoqc } from './modules/pycoqc'
+include { clair3_variant_calling } from './modules/clair3'
 // include { create_lra_index; lra_alignment } from './modules/lra'
 
 /*
@@ -95,6 +96,8 @@ workflow slurm {
     // variant calling from alignment
     deepvariant( minimap_align_bamout.out.bam, minimap_align_bamout.out.idx, genomeref )
     filter_deepvar( deepvariant.out.indel_snv_vcf )
+
+    clair3_variant_calling(minimap_align_bamout.out.bam, minimap_align_bamout.out.idx, genomeref)
     
     sniffles( minimap_align_bamout.out.bam, minimap_align_bamout.out.idx, genomeref )
     filtersniffles( sniffles.out.sv_calls )
@@ -514,7 +517,7 @@ workflow wgs_analysis_fastq {
     crossstitch( longphase_phase.out.snv_indel_phased, filtersniffles.out.variants_pass, minimap_align_bamout.out.bam, genomeref, params.karyotype )
 
     // de novo assembly using shasta
-    shasta( process_reads.out.fastq_trimmed )
+    shasta( process_reads.out.fastq_trimmed ) 
     // use reference-based haplotype tags to assure assembly-based haplotypes match reference-based ones
     haptagtransfer( longphase_tag.out.haplotagged_bam, shasta.out.assembly )
     hapduptagged( haptagtransfer.out.retagged_bam, haptagtransfer.out.retagged_bamindex, shasta.out.assembly )

@@ -3,10 +3,11 @@
 * Sam to sorted bam conversion using samtools
 */
 process sam_to_sorted_bam {
-    label 'cpu_mid'
+    label 'cpu_high'
     label 'mem_mid'
     label 'time_mid'
     label 'samtools'
+    label ( workflow.profile.contains('slurm') ? 'wice_bigmem' : 'cpu_high')
 
     publishDir path: "${params.outdir}/${params.sampleid}/minimap_alignment/", mode: 'copy'
     // publishDir path: "${params.outdir}/${params.sampleid}/${task.process}/", mode: 'copy',
