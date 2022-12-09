@@ -84,6 +84,7 @@ include { clair3_variant_calling } from './modules/clair3'
 workflow slurm {
     // guppy basecalling
     genomeref = Channel.fromPath( params.genomeref, checkIfExists: true  )
+    genomerefidx = Channel.fromPath( params.genomerefindex, checkIfExists: true  )
     basecall( Channel.fromPath( params.ont_base_dir ), genomeref )
 
     // filtering and trimming
@@ -97,7 +98,7 @@ workflow slurm {
     deepvariant( minimap_align_bamout.out.bam, minimap_align_bamout.out.idx, genomeref )
     filter_deepvar( deepvariant.out.indel_snv_vcf )
 
-    clair3_variant_calling(minimap_align_bamout.out.bam, minimap_align_bamout.out.idx, genomeref)
+    clair3_variant_calling(minimap_align_bamout.out.bam, minimap_align_bamout.out.idx, genomeref, genomerefidx)
     
     sniffles( minimap_align_bamout.out.bam, minimap_align_bamout.out.idx, genomeref )
     filtersniffles( sniffles.out.sv_calls )

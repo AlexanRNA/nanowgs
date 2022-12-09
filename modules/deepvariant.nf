@@ -27,7 +27,7 @@ process deepvariant_snv_calling {
     output:
     path "deepvar_out/*.vcf.gz", emit: indel_snv_vcf
     path "deepvar_out/*.vcf.gz.tbi", emit: indel_snv_vcf_index
-    path "deepvar_out/*visual_report.html", emit: indel_snv_vcf_html  // TODO test
+    path "deepvar_out/*visual_report.html", emit: indel_snv_vcf_html  
     // path "deepvar_out/intermediate_files"
     // path "deepvar_out/*.haplotagged.bam", emit: haplotagged_bam
     // path "deepvar_out/*.haplotagged.bam.bai", emit: haplotagged_bam_idx

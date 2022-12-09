@@ -12,6 +12,7 @@ process clair3_variant_calling {
     path bam
     path bam_index
     path genomeref
+    path genomeindex
 
     output:
     path "clair3/*"  // TODO possibly add emitting if will be used for phasing
