@@ -75,17 +75,39 @@ include { run_mummer as mummer_hap1; run_mummer as mummer_hap2; run_mummer as mu
 
 include { run_pycoqc } from './modules/pycoqc'
 include { clair3_variant_calling } from './modules/clair3'
+include {fast5_2pod5 } from './modules/pod5'
+include {basecall_dorado; ubam_to_bam} from './modules/dorado'
+// TODO include dorado
 // include { create_lra_index; lra_alignment } from './modules/lra'
+
+/*
+* Dorado basecalling
+*
+*/
+workflow dorado_call {
+    fast5_2pod5(Channel.fromPath( params.ont_base_dir , checkIfExists: true ))
+    basecall_dorado( fast5_2pod5.out.reads_pod5 )
+}
+/**
+*
+*/
+workflow slurm_dorado {
+    genomeref = Channel.fromPath( params.genomeref, checkIfExists: true  )
+    genomerefidx = Channel.fromPath( params.genomerefindex, checkIfExists: true  )
+    //alignment
+    ubam_to_bam(Channel.fromPath( params.ubam , checkIfExists: true ), genomeref)
+}
 
 /*
 * Building slurm pipeline 
 *
 */
-workflow slurm {
+workflow slurm_guppy {
     // guppy basecalling
     genomeref = Channel.fromPath( params.genomeref, checkIfExists: true  )
     genomerefidx = Channel.fromPath( params.genomerefindex, checkIfExists: true  )
     basecall( Channel.fromPath( params.ont_base_dir ), genomeref )
+
 
     // filtering and trimming
     filter( basecall.out.fastqs.collect() )
@@ -93,6 +115,7 @@ workflow slurm {
 
     // alignment
     minimap_align_bamout( genomeref, pigz.out.fastqgz )
+    
 
     // variant calling from alignment
     deepvariant( minimap_align_bamout.out.bam, minimap_align_bamout.out.idx, genomeref )
