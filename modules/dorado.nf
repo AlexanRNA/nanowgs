@@ -7,7 +7,7 @@ process basecall_dorado {
 
     label ( workflow.profile.contains('slurm') ? 'wice_gpu' : 'with_p100node' ) //if slurm run wice, else P100 NVIDIA
 
-    publishDir path: "/${params.outdir}/${params.sampleid}/", mode: 'copy'
+    publishDir path: "${params.sampleid}/", mode: 'copy'
 
     input:
     path reads_pod5
@@ -43,7 +43,7 @@ process ubam_to_bam {
 
     script:
     """
-    samtools bam2fq -@ $task.cpus -T "*" ${params.ubam} \
+    bash samtools bam2fq -@ $task.cpus -T "*" ${params.ubam} \
         | minimap2 -y -k 17 -t -@ $task.cpus -ax map-ont -L --secondary=no --MD --cap-kalloc=1g -K 10g $genomeref - \
         | samtools sort -@ $task.cpus -T ./scratch/ - \
         | tee >(samtools view -e '[qs] < 10' -o ${params.sampleid}.fail.bam - ) \

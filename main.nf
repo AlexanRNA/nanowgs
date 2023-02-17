@@ -89,13 +89,28 @@ workflow dorado_call {
     basecall_dorado( fast5_2pod5.out.reads_pod5 )
 }
 /**
-*
+* Slurm using dorado output
 */
 workflow slurm_dorado {
     genomeref = Channel.fromPath( params.genomeref, checkIfExists: true  )
     genomerefidx = Channel.fromPath( params.genomerefindex, checkIfExists: true  )
+   
     //alignment
+    // todo decouple ubam to fastq from the rest, so I can feed fastq to shasta
     ubam_to_bam(Channel.fromPath( params.ubam , checkIfExists: true ), genomeref)
+    index_bam(ubam_to_bam.out.mapped_bam)
+
+    // variant calling from alignment
+    deepvariant( ubam_to_bam.out.mapped_bam, index_bam.out.bam_index, genomeref )
+    filter_deepvar( deepvariant.out.indel_snv_vcf )
+
+    clair3_variant_calling(ubam_to_bam.out.mapped_bam, index_bam.out.bam_index, genomeref, genomerefidx)
+    
+    sniffles( ubam_to_bam.out.bam, index_bam.out.bam_index, genomeref )
+    filtersniffles( sniffles.out.sv_calls )
+
+    // de novo assembly 
+    // TODO shasta only takes fastq in 
 }
 
 /*
