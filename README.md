@@ -1,11 +1,11 @@
 # Nanowgs
 
 This repository contains the Nextflow pipeline used to analyse Nanopore whole-genome sequences in the context of ASAP.
-Current version as of 20221201
+Current version as of 20230301
 
 ## Nanowgs on wice
 
-To run nanowgs on VSC HPC ***wice*** cluster.
+To run nanowgs on VSC HPC ***wICE*** cluster.
 - First, clone the repository
 ```
 git clone https://github.com/AlexanRNA/nanowgs.git
