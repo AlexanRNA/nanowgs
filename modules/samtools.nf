@@ -97,6 +97,27 @@ process index_bam {
 }
 
 
+/* 
+* Sam to go from ubam to fastq
+*/
+process ubam2fastq {
+    label 'cpu_high'
+    label 'mem_high'
+    label 'time_mid'
+    label 'samtools'
+
+    input:
+    path ubam 
+
+    output:
+    path "${params.sampleid}.fastq", emit: fastq 
+    
+    script:
+    """
+    samtools fastq -@ $task.cpus -T "*" $ubam  > ${params.sampleid}.fastq 
+    """
+}
+
 // /* 
 // * Index a fasta file
 // */
