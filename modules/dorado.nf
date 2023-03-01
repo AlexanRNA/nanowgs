@@ -1,6 +1,6 @@
 /* 
 * Basecall reads with dorado
-* TODO: test
+* 
 */
 process basecall_dorado {
     label 'dorado'
@@ -23,30 +23,3 @@ process basecall_dorado {
 }
 
 
-// TODO test if this work on non GPU node + add indexing --> only to the workflow, not here
-process ubam_to_bam {
-    label 'dorado'
-    label 'cpu_high'
-    label 'mem_high'
-    label 'time_high'
-
-    publishDir path: "${params.outdir}/${params.sampleid}/", mode: 'copy'
-    
-    input:
-    path ubam 
-    path genomeref
-
-    output 
-    path "${params.sampleid}.pass.bam", emit: mapped_bam
-    path "${params.sampleid}.fail.bam", emit: mapped_bam_fail
-
-
-    script:
-    """
-    bash samtools bam2fq -@ $task.cpus -T "*" ${params.ubam} \
-        | minimap2 -y -k 17 -t -@ $task.cpus -ax map-ont -L --secondary=no --MD --cap-kalloc=1g -K 10g $genomeref - \
-        | samtools sort -@ $task.cpus -T ./scratch/ - \
-        | tee >(samtools view -e '[qs] < 10' -o ${params.sampleid}.fail.bam - ) \
-        | samtools view -e '[qs] >= 10' -o ${params.sampleid}.pass.bam -
-    """    
-}
