@@ -27,25 +27,42 @@ workDir = '/scratch/leuven/path/to/scratch/nextflow'
 ```
 singularity.cacheDir = '/path/to/images'
 ```
-- Once your config file is updated, you can mproceed with actually running the pipeline
+- Once your config file is updated, you can proceed with actually running the pipeline
 
-Open a new tmux window on one of the reserved Genius nodes (r23i27n14 r23i27n22 r23i27n23 r23i27n24). Login node is not recommended, since this pipeline runs for a while and can be thus killed at some point. 
+Open a new tmux window on one of the reserved Genius nodes (r23i27n14 r23i27n22 r23i27n23 r23i27n24), or any CPU wICE node. Login node is not recommended, since this pipeline runs for a while and can be thus killed at some point. 
 ```
 tmux new-session -A -s nanowgs
 ```
- Load nextflow (version >=19.10.0) and export environmental variable
+ Load nextflow (version >=19.10.0) and export environmental variable. You can also save the environmental variable in your `.bashrc` file
  ```
  ml Nextflow
  export SLURM_CLUSTERS=wice
  ```
 
- Now, you can run nanowgs nextflow pipeline using the following command. I recommend starting the pipeline in your output directory, so you have report and timeline, as well as all nextflow logs at the same location. 
+ Now, you can run nanowgs nextflow pipeline.
+ 
+ ## Guppy + following analysis  ( pre-Feb 2023 )
+
+ To run guppy basecalling and the following processing, use the following command. I recommend starting the pipeline in your output directory, so you have report and timeline, as well as all nextflow logs at the same location. 
  ```
 /path/to/repo/nanowgs/main.nf \
 -profile singularity,slurm \
 -entry slurm \
 --karyotype xx \
 --outdir /path/to/output_dir -with-report -with-timeline 
+ ```
+
+ ## Dorado basecalling ( Feb 2023 ) 
+ To run new ONT basecaller, use the following command. It will first convert fast5 files to pod5 and then proceed to basecall using ONT Dorado (v0.1.1). Make sure you specify the model and modified bases required.
+ If no output directory is specified, the output will be located wherever the nextflow pipeline was started.
+ ```
+/path/to/repo/nanowgs/main.nf \
+-profile singularity,slurm \
+-entry dorado_call \
+--dorado_config "dna_r10.4.1_e8.2_400bps_sup@v4.0.0" \
+--mod_bases "5mCG_5hmCG" \
+--sampleid ASA_143B \
+--ont_base_dir /path/to/fast5 -with-report -with-timeline 
  ```
 
 ## Nanowgs on genius
