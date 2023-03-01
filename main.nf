@@ -37,7 +37,7 @@ include { filter_reads as filter } from './modules/fastp'
 include { parallel_gzip as pigz } from './modules/pigz'
 
 include { minimap_alignment as minimap } from './modules/minimap2'
-include { sam_to_sorted_bam as samtobam; get_haplotype_readids; index_bam } from './modules/samtools'
+include { sam_to_sorted_bam as samtobam; get_haplotype_readids; index_bam ; ubam2fastq } from './modules/samtools'
 
 include { sniffles_sv_calling as sniffles } from './modules/sniffles'
 include { svim_sv_calling as svim } from './modules/svim'
@@ -75,8 +75,8 @@ include { run_mummer as mummer_hap1; run_mummer as mummer_hap2; run_mummer as mu
 
 include { run_pycoqc } from './modules/pycoqc'
 include { clair3_variant_calling } from './modules/clair3'
-include {fast5_2pod5 } from './modules/pod5'
-include {basecall_dorado; ubam_to_bam} from './modules/dorado'
+include { fast5_2pod5 } from './modules/pod5'
+include { basecall_dorado } from './modules/dorado'
 // TODO include dorado
 // include { create_lra_index; lra_alignment } from './modules/lra'
 
@@ -90,6 +90,7 @@ workflow dorado_call {
 }
 /**
 * Slurm using dorado output
+*
 */
 workflow slurm_dorado {
     genomeref = Channel.fromPath( params.genomeref, checkIfExists: true  )
@@ -97,24 +98,35 @@ workflow slurm_dorado {
    
     //alignment
     // todo decouple ubam to fastq from the rest, so I can feed fastq to shasta
-    ubam_to_bam(Channel.fromPath( params.ubam , checkIfExists: true ), genomeref)
-    index_bam(ubam_to_bam.out.mapped_bam)
+    // ubam_to_bam(Channel.fromPath( params.ubam , checkIfExists: true ), genomeref)
+    // index_bam(ubam_to_bam.out.mapped_bam)
+
+    // ubam to fastq
+    ubam2fastq( Channel.fromPath( params.ubam , checkIfExists: true ))
+
+    // filter
+    filter( ubam2fastq.out.fastq.collect() )
+
+    // mapping
+    minimap_align_bamout( genomeref, filter.out.fastq_trimmed.collect() )
+
+    // sam to bam 
 
     // variant calling from alignment
-    deepvariant( ubam_to_bam.out.mapped_bam, index_bam.out.bam_index, genomeref )
-    filter_deepvar( deepvariant.out.indel_snv_vcf )
+    //deepvariant( ubam_to_bam.out.mapped_bam, index_bam.out.bam_index, genomeref )
+    //filter_deepvar( deepvariant.out.indel_snv_vcf )
 
-    clair3_variant_calling(ubam_to_bam.out.mapped_bam, index_bam.out.bam_index, genomeref, genomerefidx)
+    //clair3_variant_calling(ubam_to_bam.out.mapped_bam, index_bam.out.bam_index, genomeref, genomerefidx)
     
-    sniffles( ubam_to_bam.out.bam, index_bam.out.bam_index, genomeref )
-    filtersniffles( sniffles.out.sv_calls )
+    //sniffles( ubam_to_bam.out.bam, index_bam.out.bam_index, genomeref )
+    //filtersniffles( sniffles.out.sv_calls )
 
     // de novo assembly 
     // TODO shasta only takes fastq in 
 }
 
 /*
-* Building slurm pipeline 
+* Building slurm pipeline with guppy basecalling included
 *
 */
 workflow slurm_guppy {
