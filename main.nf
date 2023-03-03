@@ -21,23 +21,18 @@ Sample ID:       : $params.sampleid
 Input-files      : $params.ont_base_dir
 Reference genome : $params.genomeref 
 ================================
-        GUPPY 
-Guppy model     : $params.guppy_config
-================================
-        MINIMAP
 
-================================
 """
 
 
 // Command line shortcuts, quick entry point:
 
 include { basecall_reads as basecall } from './modules/guppy'
-include { filter_reads as filter } from './modules/fastp'
+include { filter_reads as filter; filter_reads_qscore ; trim_reads } from './modules/fastp'
 include { parallel_gzip as pigz } from './modules/pigz'
 
 include { minimap_alignment as minimap } from './modules/minimap2'
-include { sam_to_sorted_bam as samtobam; get_haplotype_readids; index_bam ; ubam2fastq } from './modules/samtools'
+include { sam_to_sorted_bam as samtobam; get_haplotype_readids; index_bam ; ubam2fastq ; sam_to_sorted_bam_qscore } from './modules/samtools'
 
 include { sniffles_sv_calling as sniffles } from './modules/sniffles'
 include { svim_sv_calling as svim } from './modules/svim'
@@ -104,13 +99,11 @@ workflow slurm_dorado {
     // ubam to fastq
     ubam2fastq( Channel.fromPath( params.ubam , checkIfExists: true ))
 
-    // filter
-    filter( ubam2fastq.out.fastq.collect() )
 
-    // mapping
-    minimap_align_bamout( genomeref, filter.out.fastq_trimmed.collect() )
+    // mapping and sam to bam
+    minimap_align_bamout_qscore( genomeref,  ubam2fastq.out.fastq.collect() )
 
-    // sam to bam 
+    
 
     // variant calling from alignment
     //deepvariant( ubam_to_bam.out.mapped_bam, index_bam.out.bam_index, genomeref )
@@ -123,6 +116,9 @@ workflow slurm_dorado {
 
     // de novo assembly 
     // TODO shasta only takes fastq in 
+    // filter
+    // filter_reads( ubam2fastq.out.fastq.collect() )
+    //shasta( trim_reads.out.fastq_trimmed  )
 }
 
 /*
@@ -425,6 +421,21 @@ workflow minimap_align_bamout {
     emit:
         bam = samtobam.out.sorted_bam
         idx = samtobam.out.bam_index
+
+}
+
+workflow minimap_align_bamout_qscore {
+    take:
+        genomeref
+        fastq
+    
+    main:
+        minimap( genomeref, fastq )
+        sam_to_sorted_bam_qscore( minimap.out.mapped_sam, genomeref )
+
+    emit:
+        bam = sam_to_sorted_bam_qscore.out.sorted_bam
+        idx = sam_to_sorted_bam_qscore.out.bam_index
 
 }
 

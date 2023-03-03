@@ -46,6 +46,6 @@ process minimap_alignment {
 
     script:
     """
-    minimap2 -ax map-ont -k 17 -t $task.cpus -L --secondary=no --MD --cap-kalloc=1g -K 10g $genomeref $reads > mapped.sam
+    minimap2 -ax map-ont -k 17 -t $task.cpus -L -y --secondary=no --MD --cap-kalloc=1g -K 10g $genomeref $reads > mapped.sam
     """
 }

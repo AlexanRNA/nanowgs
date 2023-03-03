@@ -118,6 +118,50 @@ process ubam2fastq {
     """
 }
 
+
+/* 
+* Sam to sorted bam conversion using samtools with qscore filtering
+*/
+process sam_to_sorted_bam_qscore {
+    label 'cpu_high'
+    label 'mem_mid'
+    label 'time_mid'
+    label 'samtools'
+    label ( workflow.profile.contains('slurm') ? 'wice_bigmem' : 'cpu_high')
+
+    publishDir path: "${params.outdir}/${params.sampleid}/minimap_alignment/", mode: 'copy'
+    // publishDir path: "${params.outdir}/${params.sampleid}/${task.process}/", mode: 'copy',
+    //            saveAs: { item -> item.matches("(.*)stats") ? item : null }
+
+    input:
+    path mapped_sam
+    path genomeref
+    // val aligner
+
+    output:
+    path "${params.sampleid}_sorted.pass.bam", emit: sorted_bam
+    path "${params.sampleid}_sorted.fail.bam", emit: fail_bam
+    path "${params.sampleid}_sorted.pass.bam.bai", emit: bam_index
+    path "*stats"
+
+    script:
+    def samtools_mem = Math.floor(task.memory.getMega() / task.cpus ) as int
+    """
+    samtools sort -@ $task.cpus \
+        -m ${samtools_mem}M \
+        --reference $genomeref \
+        -T sorttmp_${params.sampleid}_sorted \
+        $mapped_sam \
+    | tee >(samtools view -e '[qs] < ${params.min_read_qscore}' -o ${params.sampleid}_sorted.fail.bam - ) \
+    | samtools view -e '[qs] >= ${params.min_read_qscore}' -o ${params.sampleid}_sorted.pass.bam -
+    samtools index -@ $task.cpus  ${params.sampleid}_sorted.pass.bam 
+    samtools flagstat ${params.sampleid}_sorted.pass.bam > ${params.sampleid}_sorted.bam.flagstats
+    samtools idxstats -@ 4 ${params.sampleid}_sorted.pass.bam > ${params.sampleid}_sorted.bam.idxstats
+    samtools stats -@ 4 ${params.sampleid}_sorted.pass.bam > ${params.sampleid}_sorted.bam.stats
+    """
+
+}
+
 // /* 
 // * Index a fasta file
 // */
