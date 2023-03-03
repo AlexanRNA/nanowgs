@@ -28,7 +28,7 @@ Reference genome : $params.genomeref
 // Command line shortcuts, quick entry point:
 
 include { basecall_reads as basecall } from './modules/guppy'
-include { filter_reads as filter; filter_reads_qscore ; trim_reads } from './modules/fastp'
+include { filter_reads as filter } from './modules/fastp'
 include { parallel_gzip as pigz } from './modules/pigz'
 
 include { minimap_alignment as minimap } from './modules/minimap2'
@@ -80,7 +80,8 @@ include { basecall_dorado } from './modules/dorado'
 *
 */
 workflow dorado_call {
-    fast5_2pod5(Channel.fromPath( params.ont_base_dir , checkIfExists: true ))
+    ont_basedir = Channel.fromPath( "${params.ont_base_dir + '/*{fast5_pass,fast5_fail}'}" , checkIfExists: true, type: 'dir' ).collect()
+    fast5_2pod5(ont_basedir)
     basecall_dorado( fast5_2pod5.out.reads_pod5 )
 }
 /**
@@ -103,7 +104,6 @@ workflow slurm_dorado {
     // mapping and sam to bam
     minimap_align_bamout_qscore( genomeref,  ubam2fastq.out.fastq.collect() )
 
-    
 
     // variant calling from alignment
     //deepvariant( ubam_to_bam.out.mapped_bam, index_bam.out.bam_index, genomeref )
@@ -118,7 +118,7 @@ workflow slurm_dorado {
     // TODO shasta only takes fastq in 
     // filter
     // filter_reads( ubam2fastq.out.fastq.collect() )
-    //shasta( trim_reads.out.fastq_trimmed  )
+    // shasta( trim_reads.out.fastq_trimmed  )
 }
 
 /*

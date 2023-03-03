@@ -7,7 +7,7 @@ process basecall_dorado {
 
     label ( workflow.profile.contains('slurm') ? 'wice_gpu' : 'with_p100node' ) //if slurm run wice, else P100 NVIDIA
 
-    publishDir path: "${params.sampleid}/", mode: 'copy'
+    publishDir path: "${params.outdir}/${params.sampleid}/", mode: 'copy'
 
     input:
     path reads_pod5

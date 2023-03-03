@@ -9,6 +9,8 @@ process filter_reads {
     label 'fastp'
 
     // publishDir path: "${params.outdir}/${params.sampleid}/${task.process}/", mode: 'copy'
+    publishDir path: "${params.outdir}/${params.sampleid}/fastp/", mode: 'copy', pattern :'*html' // TODO test this works 
+    
 
     input:
     path fastqs
@@ -38,3 +40,4 @@ process filter_reads {
     fi
     """
 }
+
