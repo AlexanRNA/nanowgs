@@ -4,7 +4,7 @@
 */
 
 process fast5_2pod5 {
-    label 'cpu_high'
+    label 'cpu_mid'
     label 'mem_mid'
     label 'time_mid'
     label 'pod5'
