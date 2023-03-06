@@ -38,7 +38,7 @@ include { sniffles_sv_calling as sniffles } from './modules/sniffles'
 include { svim_sv_calling as svim } from './modules/svim'
 include { cutesv_sv_calling as cutesv } from './modules/cutesv'
 include { dysgu_sv_calling as dysgu } from './modules/dysgu'
-include { svim_sv_filtering as filtersvim; sniffles_sv_filtering as filtersniffles; variant_filtering as filter_deepvar } from './modules/bcftools'
+include { svim_sv_filtering as filtersvim; sniffles_sv_filtering as filtersniffles; variant_filtering as filter_snp_indel } from './modules/bcftools'
 include { vcf_concat; vcf_concat_sv_snv as merge_sv_snv } from './modules/bcftools'
 
 include { longphase_phase; longphase_tag } from './modules/longphase'
@@ -72,7 +72,9 @@ include { run_pycoqc } from './modules/pycoqc'
 include { clair3_variant_calling } from './modules/clair3'
 include { fast5_2pod5 } from './modules/pod5'
 include { basecall_dorado } from './modules/dorado'
-// TODO include dorado
+include {cramino } from '.modules/cramino'
+include { kyebr } from '.modules/kyber'
+
 // include { create_lra_index; lra_alignment } from './modules/lra'
 
 /*
@@ -104,20 +106,34 @@ workflow slurm_dorado {
     // mapping and sam to bam
     minimap_align_bamout_qscore( genomeref,  ubam2fastq.out.fastq.collect() )
 
+    // TODO test cramino and kyber for quick QC
+    kyber ( minimap_align_bamout_qscore.out.bam )
+    cramino ( minimap_align_bamout_qscore.out.bam )
 
     // variant calling from alignment
-    //deepvariant( ubam_to_bam.out.mapped_bam, index_bam.out.bam_index, genomeref )
-    //filter_deepvar( deepvariant.out.indel_snv_vcf )
-
-    //clair3_variant_calling(ubam_to_bam.out.mapped_bam, index_bam.out.bam_index, genomeref, genomerefidx)
     
-    //sniffles( ubam_to_bam.out.bam, index_bam.out.bam_index, genomeref )
-    //filtersniffles( sniffles.out.sv_calls )
+    // deepvariant( ubam_to_bam.out.mapped_bam, index_bam.out.bam_index, genomeref )
+    // filter_snp_indel( deepvariant.out.indel_snv_vcf )
+
+    // TODO test this
+    
+    clair3_variant_calling(minimap_align_bamout_qscore.out.bam, minimap_align_bamout_qscore.out.idx, genomeref, genomerefidx)
+    filter_snp_indel( clair3_variant_calling.out.snp_indel )
+    
+    sniffles( minimap_align_bamout_qscore.out.bam, minimap_align_bamout_qscore.out.idx, genomeref )
+    filtersniffles( sniffles.out.sv_calls )
+
+    // TODO 
+    // add longphase
+    // add hapdup
+    // crossstitch
+    // add annotation dfam R script
+
 
     // de novo assembly 
     // TODO shasta only takes fastq in 
     // filter
-    // filter_reads( ubam2fastq.out.fastq.collect() )
+    filter_reads( ubam2fastq.out.fastq.collect() )
     // shasta( trim_reads.out.fastq_trimmed  )
 }
 
@@ -142,7 +158,7 @@ workflow slurm_guppy {
 
     // variant calling from alignment
     deepvariant( minimap_align_bamout.out.bam, minimap_align_bamout.out.idx, genomeref )
-    filter_deepvar( deepvariant.out.indel_snv_vcf )
+    filter_snp_indel( deepvariant.out.indel_snv_vcf )
 
     clair3_variant_calling(minimap_align_bamout.out.bam, minimap_align_bamout.out.idx, genomeref, genomerefidx)
     
@@ -156,7 +172,7 @@ workflow slurm_guppy {
     run_pycoqc ( basecall.out.seq_summary, minimap_align_bamout.out.bam, minimap_align_bamout.out.idx )
     
     // phasing
-    longphase_phase( genomeref, filter_deepvar.out.variants_pass, filtersniffles.out.variants_pass, minimap_align_bamout.out.bam, minimap_align_bamout.out.idx )
+    longphase_phase( genomeref, filter_snp_indel.out.variants_pass, filtersniffles.out.variants_pass, minimap_align_bamout.out.bam, minimap_align_bamout.out.idx )
     longphase_tag( longphase_phase.out.snv_indel_phased, longphase_phase.out.sv_phased, minimap_align_bamout.out.bam, minimap_align_bamout.out.idx )
 
     crossstitch( longphase_phase.out.snv_indel_phased, filtersniffles.out.variants_pass, minimap_align_bamout.out.bam, genomeref, params.karyotype )
@@ -565,12 +581,12 @@ workflow wgs_analysis_fastq {
     minimap_align_bamout( genomeref, process_reads.out.fastq_trimmed )
 
     deepvariant( minimap_align_bamout.out.bam, minimap_align_bamout.out.idx, genomeref )
-    filter_deepvar( deepvariant.out.indel_snv_vcf )
+    filter_snp_indel( deepvariant.out.indel_snv_vcf )
     
     sniffles( minimap_align_bamout.out.bam, minimap_align_bamout.out.idx, genomeref )
     filtersniffles( sniffles.out.sv_calls )
 
-    longphase_phase( genomeref, filter_deepvar.out.variants_pass, filtersniffles.out.variants_pass, minimap_align_bamout.out.bam, minimap_align_bamout.out.idx )
+    longphase_phase( genomeref, filter_snp_indel.out.variants_pass, filtersniffles.out.variants_pass, minimap_align_bamout.out.bam, minimap_align_bamout.out.idx )
     longphase_tag( longphase_phase.out.snv_indel_phased, longphase_phase.out.sv_phased, minimap_align_bamout.out.bam, minimap_align_bamout.out.idx )
 
     // seqtk( longphase_tag.out.hap1ids, longphase_tag.out.hap2ids, process_reads.out.fastq_trimmed )
