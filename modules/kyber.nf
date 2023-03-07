@@ -17,8 +17,8 @@ process kyber {
     path "${params.sampleid}_accuracy_heatmap.png"
 
     script:
-    """" 
+    """
     kyber -p -c purple -o ${params.sampleid}_accuracy_heatmap.png $bam_sorted 
-    """"
+    """
 
 }

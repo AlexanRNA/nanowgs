@@ -14,8 +14,8 @@ process cramino {
     path "${params.sampleid}_cramino.txt"
 
     script:
-    """" 
+    """
     cramino $bam_sorted > ${params.sampleid}_cramino.txt
-    """"
+    """
 
 }

@@ -72,8 +72,8 @@ include { run_pycoqc } from './modules/pycoqc'
 include { clair3_variant_calling } from './modules/clair3'
 include { fast5_2pod5 } from './modules/pod5'
 include { basecall_dorado } from './modules/dorado'
-include {cramino } from '.modules/cramino'
-include { kyebr } from '.modules/kyber'
+include {cramino } from './modules/cramino'
+include { kyber } from './modules/kyber'
 
 // include { create_lra_index; lra_alignment } from './modules/lra'
 
