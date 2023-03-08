@@ -72,8 +72,9 @@ include { run_pycoqc } from './modules/pycoqc'
 include { clair3_variant_calling } from './modules/clair3'
 include { fast5_2pod5 } from './modules/pod5'
 include { basecall_dorado } from './modules/dorado'
-include {cramino } from './modules/cramino'
+include { cramino } from './modules/cramino'
 include { kyber } from './modules/kyber'
+include { mosdepth; mosdepth_plot} from './modules/mosdepth'
 
 // include { create_lra_index; lra_alignment } from './modules/lra'
 
@@ -86,6 +87,7 @@ workflow dorado_call {
     fast5_2pod5(ont_basedir)
     basecall_dorado( fast5_2pod5.out.reads_pod5 )
 }
+
 /**
 * Slurm using dorado output
 *
@@ -106,9 +108,11 @@ workflow slurm_dorado {
     // mapping and sam to bam
     minimap_align_bamout_qscore( genomeref,  ubam2fastq.out.fastq.collect() )
 
-    // TODO test cramino and kyber for quick QC
+    // cramino and kyber for quick QC
     kyber ( minimap_align_bamout_qscore.out.bam )
     cramino ( minimap_align_bamout_qscore.out.bam )
+    mosdepth (minimap_align_bamout_qscore.out.bam, minimap_align_bamout_qscore.out.idx )
+    mosdepth_plot ( mosdepth.out.coverage_txt )
 
     // variant calling from alignment
     
@@ -133,7 +137,7 @@ workflow slurm_dorado {
     // de novo assembly 
     // TODO shasta only takes fastq in 
     // filter
-    filter_reads( ubam2fastq.out.fastq.collect() )
+    filter( ubam2fastq.out.fastq.collect() )
     // shasta( trim_reads.out.fastq_trimmed  )
 }
 
