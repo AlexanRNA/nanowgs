@@ -16,7 +16,7 @@ process clair3_variant_calling {
 
     output:
     path "clair3/*"  
-    path "clair3/merge_output.vcf.gz" emit snp_indel
+    path "clair3/merge_output.vcf.gz", emit: snp_indel
     // path "clair3/ merge_output.vcf.gz.tbi" emit  snp_indel_idx
 
     script:

@@ -61,7 +61,7 @@ process variant_filtering {
     label 'time_low'
     label 'bcftools'
 
-    publishDir path: "${params.outdir}/${params.sampleid}/filtered_deepvar/", mode: 'copy'
+    publishDir path: "${params.outdir}/${params.sampleid}/filtered_snp_indel/", mode: 'copy'
     // ,
         // saveAs: { item -> 
         //                 if ( item.matches("(.*)lra(.*)" ) {
