@@ -29,7 +29,7 @@ process mosdepth_plot {
     label 'cpu_low'
     label 'mem_low'
     label 'time_low'
-    label 'pod5' // just a container with python environment
+    label 'python' // just a container with python environment
 
     publishDir path: "${params.outdir}/${params.sampleid}/mosdepth/", mode: 'copy'
 
@@ -43,7 +43,6 @@ process mosdepth_plot {
    
     script:
     """
-    #!/usr/bin/python
     plot-dist.py $coverage_txt
     """
 }

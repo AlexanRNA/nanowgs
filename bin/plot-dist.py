@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # this is a python script from https://github.com/brentp/mosdepth/tree/master/scripts
 # used to plot coverage
 import sys
