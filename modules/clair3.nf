@@ -15,7 +15,10 @@ process clair3_variant_calling {
     path genomeindex
 
     output:
-    path "clair3/*"  
+    // TODO test if this works --> make sure you do no longer
+    // output ./tmp, since it is massive 
+    path "clair3/*vcf*"
+    path "clair3/*log"  
     path "clair3/merge_output.vcf.gz", emit: snp_indel
     // path "clair3/ merge_output.vcf.gz.tbi" emit  snp_indel_idx
 
