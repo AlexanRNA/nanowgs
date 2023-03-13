@@ -29,7 +29,7 @@ Reference genome : $params.genomeref
 
 include { basecall_reads as basecall } from './modules/guppy'
 include { filter_reads as filter } from './modules/fastp'
-include { parallel_gzip as pigz } from './modules/pigz'
+include { parallel_gzip as pigz; parallel_gzip_assembly, parallel_gzip_gfa } from './modules/pigz'
 
 include { minimap_alignment as minimap } from './modules/minimap2'
 include { sam_to_sorted_bam as samtobam; get_haplotype_readids; index_bam ; ubam2fastq ; sam_to_sorted_bam_qscore } from './modules/samtools'
@@ -83,7 +83,9 @@ include { mosdepth; mosdepth_plot} from './modules/mosdepth'
 *
 */
 workflow dorado_call {
-    ont_basedir = Channel.fromPath( "${params.ont_base_dir + '/*{fast5_pass,fast5_fail}'}" , checkIfExists: true, type: 'dir' ).collect()
+    // use the below line only if skip is still present 
+    // ont_basedir = Channel.fromPath( "${params.ont_base_dir + '/*{fast5_pass,fast5_fail}'}" , checkIfExists: true, type: 'dir' ).collect()
+    ont_basedir = Channel.fromPath( params.ont_base_dir, checkIfExists: true )
     fast5_2pod5(ont_basedir)
     basecall_dorado( fast5_2pod5.out.reads_pod5 )
 }
@@ -120,25 +122,35 @@ workflow slurm_dorado {
     // filter_snp_indel( deepvariant.out.indel_snv_vcf )
 
     // TODO test this
-    
     clair3_variant_calling(minimap_align_bamout_qscore.out.bam, minimap_align_bamout_qscore.out.idx, genomeref, genomerefidx)
     filter_snp_indel( clair3_variant_calling.out.snp_indel )
     
     sniffles( minimap_align_bamout_qscore.out.bam, minimap_align_bamout_qscore.out.idx, genomeref )
     filtersniffles( sniffles.out.sv_calls )
 
-    // TODO 
-    // add longphase
-    // add hapdup
-    // crossstitch
+
+    // longphase
+    // phasing
+    longphase_phase( genomeref, filter_snp_indel.out.variants_pass, filtersniffles.out.variants_pass, minimap_align_bamout_qscore.out.bam, minimap_align_bamout_qscore.out.idx )
+    longphase_tag( longphase_phase.out.snv_indel_phased, longphase_phase.out.sv_phased, minimap_align_bamout_qscore.out.bam, minimap_align_bamout_qscore.out.idx )
+
+    // TODO
     // add annotation dfam R script
 
 
     // de novo assembly 
-    // TODO shasta only takes fastq in 
-    // filter
+    // TODO test both trimmed and untrimmed + below code
     filter( ubam2fastq.out.fastq.collect() )
-    // shasta( trim_reads.out.fastq_trimmed  )
+    shasta( trim_reads.out.fastq_trimmed )
+    parallel_gzip_assembly ( shasta.out.assembly )
+    parallel_gzip_gfa ( shasta.out.assembly_gfa )
+
+    // hapdup 
+    // use reference-based haplotype tags to assure assembly-based haplotypes match reference-based ones
+    // TODO test if it works with zipped fasta assembly
+    haptagtransfer( longphase_tag.out.haplotagged_bam, parallel_gzip_assembly.out.assembly )
+    hapduptagged( haptagtransfer.out.retagged_bam, haptagtransfer.out.retagged_bamindex, parallel_gzip_assembly.out.assembly )
+
 }
 
 /*
