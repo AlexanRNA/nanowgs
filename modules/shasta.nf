@@ -10,7 +10,7 @@ process run_shasta_assembly {
     
     label ( workflow.profile.contains('slurm') ? 'wice_bigmem' : 'cpu_high')
 
-    publishDir path: "${params.outdir}/${params.sampleid}/", mode: 'copy'
+    publishDir path: "${params.outdir}/${params.sampleid}/", mode: 'copy', pattern : {'*csv', '*json', '*html', '*conf', '*log'}
 
     input:
     path fastq
@@ -18,47 +18,51 @@ process run_shasta_assembly {
 
     output:
     path "shasta_assembly/Assembly.fasta", emit: assembly
+    path "shasta_assembly/Assembly.gfa", emit : assembly_gfa
     path "shasta_assembly/*"
 
     script:
-    def localproc = ( workflow.profile.contains('qsub') ? 0: task.cpus )
+    // def localproc = ( workflow.profile.contains('slurm') ? 0: task.cpus )
+    
     if( params.shasta_minreadlength )
-        """
-        if [[ $fastq == *.gz ]]; then 
-            gunzip -c $fastq > uncompressed_reads.fq
-        else 
-            mv $fastq uncompressed_reads.fq
-        fi
+            """
+            if [[ $fastq == *.gz ]]; then 
+                gunzip -c $fastq > uncompressed_reads.fq
+            else 
+                mv $fastq uncompressed_reads.fq
+            fi
 
-        shasta \
-            --config /shastaconf/conf/${params.shasta_config} \
-            --input uncompressed_reads.fq \
-            --assemblyDirectory ./shasta_assembly \
-            --threads ${localproc} \
-            --Reads.minReadLength ${params.shasta_minreadlength}
+            shasta \
+                --config ${params.shasta_config} \
+                --input uncompressed_reads.fq \
+                --assemblyDirectory ./shasta_assembly \
+                --threads $task.cpus \
+                --Reads.minReadLength ${params.shasta_minreadlength}
         
-        if [ -f ./shasta_assembly/Assembly-Haploid.fasta ]
-        then mv ./shasta_assembly/Assembly-Haploid.fasta ./shasta_assembly/Assembly.fasta
-        fi 
-        """
-    else
-        """
-        if [[ $fastq == *.gz ]]; then 
-            gunzip -c $fastq > uncompressed_reads.fq
-        else 
-            mv $fastq uncompressed_reads.fq
-        fi
+            if [ -f ./shasta_assembly/Assembly-Haploid.fasta ]
+            then mv ./shasta_assembly/Assembly-Haploid.fasta ./shasta_assembly/Assembly.fasta
+            fi 
+            """
+        else
+            """
+            if [[ $fastq == *.gz ]]; then 
+                gunzip -c $fastq > uncompressed_reads.fq
+            else 
+                mv $fastq uncompressed_reads.fq
+            fi
 
-        shasta \
-            --config /shastaconf/conf/${params.shasta_config} \
-            --input uncompressed_reads.fq \
-            --assemblyDirectory ./shasta_assembly \
-            --threads ${localproc}
+            shasta \
+                --config ${params.shasta_config} \
+                --input uncompressed_reads.fq \
+                --assemblyDirectory ./shasta_assembly \
+                --threads $task.cpus
         
-        if [ -f ./shasta_assembly/Assembly-Haploid.fasta ]
-        then mv ./shasta_assembly/Assembly-Haploid.fasta ./shasta_assembly/Assembly.fasta
-        fi 
-        """
+            if [ -f ./shasta_assembly/Assembly-Haploid.fasta ]
+            then mv ./shasta_assembly/Assembly-Haploid.fasta ./shasta_assembly/Assembly.fasta
+            fi 
+            """
+   
+    
 }
 
 
@@ -105,6 +109,3 @@ process run_shasta_assembly_haploid {
 
 
 
-    // singularity run -B /staging/leuven/stg_00002/lcb/jdemeul/ /staging/leuven/stg_00002/lcb/jdemeul/software/singularity_images/zeunas-mummer-4.0.0rc1.img nucmer -t 16 --maxmatch -l 100 -c 1000 -p /staging/leuven/stg_00002/lcb/jdemeul/projects/2021_ASAP/results/ASA_Edin_BA24_38_17/results/fastq/ShastaRun/mummer_ /staging/leuven/stg_00002/lcb/jdemeul/reference/chm13_v1.1_chrY_KI270740_EBV/fasta/chm13_v1.1_chrY_KI270740_EBV.fasta /staging/leuven/stg_00002/lcb/jdemeul/projects/2021_ASAP/results/ASA_Edin_BA24_38_17/results/fastq/ShastaRun/Assembly.fasta
-    // python DotPrep.py --delta /staging/leuven/stg_00002/lcb/jdemeul/projects/2021_ASAP/results/ASA_Edin_BA24_38_17/results/fastq/ShastaRun/mummer_ASA_Edin_BA24_38_17_denovo_vs_CHM13v1.1.delta --out /staging/leuven/stg_00002/lcb/jdemeul/projects/2021_ASAP/results/ASA_Edin_BA24_38_17/results/fastq/ShastaRun/mummer_ASA_Edin_BA24_38_17_denovo_vs_CHM13v1.1.DotPrep.out
- 
