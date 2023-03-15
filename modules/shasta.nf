@@ -10,7 +10,12 @@ process run_shasta_assembly {
     
     label ( workflow.profile.contains('slurm') ? 'wice_bigmem' : 'cpu_high')
 
-    publishDir path: "${params.outdir}/${params.sampleid}/", mode: 'copy', pattern : {'*csv', '*json', '*html', '*conf', '*log'}
+    publishDir path: "${params.outdir}/${params.sampleid}/", mode: 'copy', pattern: "*csv"
+    publishDir path: "${params.outdir}/${params.sampleid}/", mode: 'copy', pattern: "*json"
+    publishDir path: "${params.outdir}/${params.sampleid}/", mode: 'copy', pattern: "*log"
+    publishDir path: "${params.outdir}/${params.sampleid}/", mode: 'copy', pattern: "*conf"
+    publishDir path: "${params.outdir}/${params.sampleid}/", mode: 'copy', pattern: "*html"
+ 
 
     input:
     path fastq
@@ -18,12 +23,11 @@ process run_shasta_assembly {
 
     output:
     path "shasta_assembly/Assembly.fasta", emit: assembly
-    path "shasta_assembly/Assembly.gfa", emit : assembly_gfa
+    path "shasta_assembly/Assembly.gfa", emit: assembly_gfa
     path "shasta_assembly/*"
 
     script:
     // def localproc = ( workflow.profile.contains('slurm') ? 0: task.cpus )
-    
     if( params.shasta_minreadlength )
             """
             if [[ $fastq == *.gz ]]; then 
@@ -60,9 +64,7 @@ process run_shasta_assembly {
             if [ -f ./shasta_assembly/Assembly-Haploid.fasta ]
             then mv ./shasta_assembly/Assembly-Haploid.fasta ./shasta_assembly/Assembly.fasta
             fi 
-            """
-   
-    
+            """  
 }
 
 
