@@ -75,7 +75,7 @@ include { basecall_dorado } from './modules/dorado'
 include { cramino } from './modules/cramino'
 include { kyber } from './modules/kyber'
 include { mosdepth; mosdepth_plot} from './modules/mosdepth'
-include { extract_SV_lengths; plot_SV_lengths } from '.modules/r-visualisation'
+include { extract_SV_lengths; plot_SV_lengths } from './modules/r-visualisation'
 
 // include { create_lra_index; lra_alignment } from './modules/lra'
 
