@@ -1,5 +1,5 @@
 #!/usr/bin/env Rscript 
-args = commandArgs(trailingOnly=TRUE)
+args = commandArgs(TRUE)
 
 library(ggplot2)
 library(tidyverse)
@@ -73,4 +73,5 @@ insertions_large <- ins %>%
 ########
 
 all <- arrangeGrob(deletions,insertions,deletions_large,insertions_large, ncol = 2)
+
 ggsave(plot = all, args[3], dpi=800, device = "pdf", width = 10, height = 6)
