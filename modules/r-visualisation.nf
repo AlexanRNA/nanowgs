@@ -7,7 +7,7 @@ process extract_SV_lengths {
     label 'cpu_low'
     label 'mem_low'
     label 'time_low'
-    label 'kyber' // just some linux env
+    // label 'kyber' // just some linux env
 
     publishDir path: "${params.outdir}/${params.sampleid}/SV_stats/", mode: 'copy'
 
@@ -50,6 +50,6 @@ process plot_SV_lengths {
 
     script:
     """
-    Rscript --vanilla sv_size.R $dels $ins "${params.sampleid}.SV_size_dist.pdf"
+    sv_size.R $dels $ins "${params.sampleid}.SV_size_dist.pdf"
     """
 }
