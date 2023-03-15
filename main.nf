@@ -29,7 +29,7 @@ Reference genome : $params.genomeref
 
 include { basecall_reads as basecall } from './modules/guppy'
 include { filter_reads as filter } from './modules/fastp'
-include { parallel_gzip as pigz; parallel_gzip_assembly, parallel_gzip_gfa } from './modules/pigz'
+include { parallel_gzip as pigz; parallel_gzip_assembly; parallel_gzip_gfa } from './modules/pigz'
 
 include { minimap_alignment as minimap } from './modules/minimap2'
 include { sam_to_sorted_bam as samtobam; get_haplotype_readids; index_bam ; ubam2fastq ; sam_to_sorted_bam_qscore } from './modules/samtools'
@@ -75,6 +75,7 @@ include { basecall_dorado } from './modules/dorado'
 include { cramino } from './modules/cramino'
 include { kyber } from './modules/kyber'
 include { mosdepth; mosdepth_plot} from './modules/mosdepth'
+include { extract_SV_lengths; plot_SV_lengths } from '.modules/r-visualisation'
 
 // include { create_lra_index; lra_alignment } from './modules/lra'
 
@@ -127,6 +128,10 @@ workflow slurm_dorado {
     
     sniffles( minimap_align_bamout_qscore.out.bam, minimap_align_bamout_qscore.out.idx, genomeref )
     filtersniffles( sniffles.out.sv_calls )
+    // TODO test this
+    // SV size visualisation
+    extract_SV_lengths( filtersniffles.out.variants_pass )
+    plot_SV_lengths( extract_SV_lengths.out.dels, extract_SV_lengths.out.ins)
 
 
     // longphase
@@ -141,7 +146,7 @@ workflow slurm_dorado {
     // de novo assembly 
     // TODO test both trimmed and untrimmed + below code
     filter( ubam2fastq.out.fastq.collect() )
-    shasta( trim_reads.out.fastq_trimmed )
+    shasta( filter.out.fastq_trimmed )
     parallel_gzip_assembly ( shasta.out.assembly )
     parallel_gzip_gfa ( shasta.out.assembly_gfa )
 
