@@ -10,14 +10,17 @@ To run nanowgs on VSC HPC ***wICE*** cluster.
 ```
 git clone https://github.com/AlexanRNA/nanowgs.git
 ```
-- Next, you need to update the config file. Update the following parameters. They can also be overwritten by command line input later on.
+- Next, you need to update the config file. Update the following parameters. They can also be overwritten by command line input parameters
 ```
 genomeref 
 sampleid
-guppy_config
+guppy_config OR dorado_config
+mod_bases
+clair3_config
+shasta_config
+shasta_minreadlength (6000 recommended)
 outdir
 karyotype 
-shasta_minreadlength (6000 recommended)
 ```
 - Update working directory. Preferably, you use your own scratch 
 ```
@@ -29,7 +32,7 @@ singularity.cacheDir = '/path/to/images'
 ```
 - Once your config file is updated, you can proceed with actually running the pipeline
 
-Open a new tmux window on one of the reserved Genius nodes (r23i27n14 r23i27n22 r23i27n23 r23i27n24), or any CPU wICE node. Login node is not recommended, since this pipeline runs for a while and can be thus killed at some point. 
+Open a new tmux window on one of the reserved Genius nodes (r23i27n14 r23i27n22 r23i27n23 r23i27n24), or any CPU wICE node. Login node is ***not*** recommended, since this pipeline runs for a while and can be thus killed at some point. 
 ```
 tmux new-session -A -s nanowgs
 ```
@@ -64,6 +67,21 @@ tmux new-session -A -s nanowgs
 --sampleid ASA_143B \
 --ont_base_dir /path/to/fast5 -with-report -with-timeline 
  ```
+
+ ## Following analysis (March 2023, **still in development**)
+
+This is the command that can be used to run subsequent analysis. However, bear in mind, this part of pipeline is still in development and was not fully tested. The example below is specific for LSK114 chemistry basecalled with `dna_r10.4.1_e8.2_400bps_sup@v4.0.0` basecalling model
+```
+/path/to/repo/nanowgs/main.nf \
+-profile singularity,slurm \
+-entry slurm_dorado \
+--ubam /location/of/your/file.bam \
+--sampleid ASA_145B \
+--outdir /path/to/output_dir \
+--clair3_config "/opt/bin/rerio/clair3_models/r1041_e82_400bps_sup_v400" \
+--shasta_config "Nanopore-R10-Fast-Nov2022" \
+-with-timeline -with-report
+```
 
 ## Nanowgs on genius
 
