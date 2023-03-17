@@ -17,7 +17,7 @@ dels <- dat
 dels$V1 <- as.numeric(dels$V1)
 dels$donor <- as.character(dels$donor)
 dels$donor <- as.factor(dels$donor)
-dels$sampleid<- str_split(dels$donor, '_', simplify = TRUE)[,2]
+
 
 # as lines
 deletions <- dels %>% 
@@ -50,7 +50,7 @@ ins <- dat
 ins$donor <- as.character(ins$donor)
 ins$V1 <- as.numeric(ins$V1)
 ins$donor <- as.factor(ins$donor)
-ins$sampleid<- str_split(ins$donor, '_', simplify = TRUE)[,2]
+
 
 #as line
 insertions <- ins %>% 
