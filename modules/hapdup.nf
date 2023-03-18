@@ -50,7 +50,8 @@ process hapdup_with_haptagged_bam {
     path assembly
 
     output:
-    path "hapdup/*"
+    //path "hapdup/*"
+    path "hapdup.log"
     path "hapdup/haplotype_1.fasta", emit: hap1
     path "hapdup/haplotype_2.fasta", emit: hap2
 
