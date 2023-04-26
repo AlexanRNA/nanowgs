@@ -21,23 +21,24 @@ process filter_reads {
 
     script:
     """
-    if [[ $fastqs == *.gz ]]; then 
-        zcat $fastqs | fastp --stdin \
-                --disable_adapter_trimming \
-                --average_qual ${params.min_read_qscore} --qualified_quality_phred 0 --unqualified_percent_limit 100 --n_base_limit 50 \
-                --length_required 100 \
-                --trim_front1 30 --trim_tail1 15 \
-                -o ${params.sampleid}_trimmed.fastq \
-                --thread $task.cpus 
-    else 
-        fastp -i $fastqs \
-                --disable_adapter_trimming \
-                --average_qual ${params.min_read_qscore} --qualified_quality_phred 0 --unqualified_percent_limit 100 --n_base_limit 50 \
-                --length_required 100 \
-                --trim_front1 30 --trim_tail1 15 \
-                -o ${params.sampleid}_trimmed.fastq \
-                --thread $task.cpus 
-    fi
+    if [[ ${fastqs[0]} == *.gz  ]]
+        then 
+            zcat $fastqs | fastp --stdin \
+                    --disable_adapter_trimming \
+                    --average_qual ${params.min_read_qscore} --qualified_quality_phred 0 --unqualified_percent_limit 100 --n_base_limit 50 \
+                    --length_required 100 \
+                    --trim_front1 30 --trim_tail1 15 \
+                    -o ${params.sampleid}_trimmed.fastq \
+                    --thread $task.cpus 
+        else 
+            fastp -i $fastqs \
+                    --disable_adapter_trimming \
+                    --average_qual ${params.min_read_qscore} --qualified_quality_phred 0 --unqualified_percent_limit 100 --n_base_limit 50 \
+                    --length_required 100 \
+                    --trim_front1 30 --trim_tail1 15 \
+                    -o ${params.sampleid}_trimmed.fastq \
+                    --thread $task.cpus 
+        fi
     """
 }
 
