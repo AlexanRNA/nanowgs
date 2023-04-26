@@ -92,7 +92,7 @@ workflow dorado_call {
 }
 
 /**
-* Slurm using dorado output
+* Slurm pipeline using dorado output
 *
 */
 workflow slurm_dorado {
@@ -153,8 +153,8 @@ workflow slurm_dorado {
     // hapdup 
     // use reference-based haplotype tags to assure assembly-based haplotypes match reference-based ones
     // TODO test if it works with zipped fasta assembly
-    haptagtransfer( longphase_tag.out.haplotagged_bam, parallel_gzip_assembly.out.assembly )
-    hapduptagged( haptagtransfer.out.retagged_bam, haptagtransfer.out.retagged_bamindex, parallel_gzip_assembly.out.assembly )
+    // haptagtransfer( longphase_tag.out.haplotagged_bam, parallel_gzip_assembly.out.assembly )
+    // hapduptagged( haptagtransfer.out.retagged_bam, haptagtransfer.out.retagged_bamindex, parallel_gzip_assembly.out.assembly )
 
 }
 
@@ -203,6 +203,35 @@ workflow slurm_guppy {
     hapduptagged( haptagtransfer.out.retagged_bam, haptagtransfer.out.retagged_bamindex, shasta.out.assembly )
 
     
+}
+
+/*
+* Fastq to SV/SNP call
+* 
+*/
+workflow fastq_to_variants {
+    // genome
+    genomeref = Channel.fromPath( params.genomeref, checkIfExists: true  )
+    genomerefidx = Channel.fromPath( params.genomerefindex, checkIfExists: true )
+   
+    // filtering and trimming
+    filter( Channel.fromPath( params.fastq + "*.fastq.gz" ).collect() )
+    pigz( filter.out.fastq_trimmed )
+
+    // alignment
+    minimap_align_bamout( genomeref, pigz.out.fastqgz )
+
+    // cramino and kyber for quick QC
+    kyber ( minimap_align_bamout.out.bam )
+    cramino ( minimap_align_bamout.out.bam )
+    mosdepth (minimap_align_bamout.out.bam, minimap_align_bamout.out.idx )
+    mosdepth_plot ( mosdepth.out.coverage_txt )
+
+    clair3_variant_calling(minimap_align_bamout.out.bam, minimap_align_bamout.out.idx, genomeref, genomerefidx)
+    filter_snp_indel( clair3_variant_calling.out.snp_indel )
+    
+    sniffles( minimap_align_bamout.out.bam, minimap_align_bamout.out.idx, genomeref )
+    filtersniffles( sniffles.out.sv_calls )
 }
 
 
