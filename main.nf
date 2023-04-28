@@ -76,6 +76,7 @@ include { cramino } from './modules/cramino'
 include { kyber } from './modules/kyber'
 include { mosdepth; mosdepth_plot} from './modules/mosdepth'
 include { extract_SV_lengths; plot_SV_lengths } from './modules/r-visualisation'
+include {modkit_stats} from './modules/modkit'
 
 // include { create_lra_index; lra_alignment } from './modules/lra'
 
@@ -128,6 +129,9 @@ workflow slurm_dorado {
     cramino ( minimap_align_bamout_qscore.out.bam )
     mosdepth (minimap_align_bamout_qscore.out.bam, minimap_align_bamout_qscore.out.idx )
     mosdepth_plot ( mosdepth.out.coverage_txt )
+
+    //TODO test 
+    modkit_stats ( minimap_align_bamout_qscore.out.bam )
 
     // variant calling from alignment
     
