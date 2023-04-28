@@ -86,9 +86,21 @@ include { extract_SV_lengths; plot_SV_lengths } from './modules/r-visualisation'
 workflow dorado_call {
     // use the below line only if skip is still present 
     // ont_basedir = Channel.fromPath( "${params.ont_base_dir + '/*{fast5_pass,fast5_fail}'}" , checkIfExists: true, type: 'dir' ).collect()
-    ont_basedir = Channel.fromPath( params.ont_base_dir, checkIfExists: true )
-    fast5_2pod5(ont_basedir)
-    basecall_dorado( fast5_2pod5.out.reads_pod5 )
+    
+    // use parameter fast5 to check if the data are in fast5 or pod5
+    if ( params.fast5 ){
+        // convert fast5 to pod5 
+        ont_basedir = Channel.fromPath( params.ont_base_dir, checkIfExists: true )
+        fast5_2pod5(ont_basedir)
+        basecall_dorado( fast5_2pod5.out.reads_pod5 )
+    } else {
+        // if pod5 format, go directly to basecalling
+        ont_basedir = Channel.fromPath( params.ont_base_dir, checkIfExists: true )
+        basecall_dorado( ont_basedir )
+    }
+    
+   
+    
 }
 
 /**
@@ -447,6 +459,7 @@ workflow process_reads {
         fastq_trimmed = filter.out.fastq_trimmed
 
 }
+
 
 
 /* 

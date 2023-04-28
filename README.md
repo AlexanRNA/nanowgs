@@ -55,17 +55,20 @@ tmux new-session -A -s nanowgs
 --outdir /path/to/output_dir -with-report -with-timeline 
  ```
 
- ## Dorado basecalling ( Feb 2023 ) 
- To run new ONT basecaller, use the following command. It will first convert fast5 files to pod5 and then proceed to basecall using ONT Dorado (v0.1.1). Make sure you specify the model and modified bases required.
+ ## Dorado basecalling ( April 2023 ) 
+ To run new ONT basecaller, use the following command. It will first convert fast5 files to pod5 and then proceed to basecall using ONT Dorado (v0.2.4). Make sure you specify the model and modified bases required.
  If no output directory is specified, the output will be located wherever the nextflow pipeline was started.
+ You provide `--fast5` in case your data is in fast5 format and not in pod5. In case of pod5, no parameter/flag needs to be provided.
  ```
 /path/to/repo/nanowgs/main.nf \
 -profile singularity,slurm \
 -entry dorado_call \
---dorado_config "dna_r10.4.1_e8.2_400bps_sup@v4.0.0" \
+--dorado_config "dna_r10.4.1_e8.2_400bps_sup@v4.1.0" \
 --mod_bases "5mCG_5hmCG" \
 --sampleid ASA_143B \
---ont_base_dir /path/to/fast5 -with-report -with-timeline 
+--ont_base_dir /path/to/fast5 \
+--fast5
+-with-report -with-timeline 
  ```
 
  ## Following analysis (March 2023, **still in development**)
