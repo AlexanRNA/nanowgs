@@ -17,7 +17,7 @@ process basecall_dorado {
 
     script:
     """
-    dorado basecaller /opt/dorado/bin/${params.dorado_config} \
+    dorado basecaller /opt/dorado/bin/${params.dorado_config} -r \
     $reads_pod5 --modified-bases ${params.mod_bases} | samtools view -Sh > ${params.sampleid}_mod_calls.bam
     """
 }
