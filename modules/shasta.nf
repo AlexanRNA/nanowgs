@@ -10,11 +10,11 @@ process run_shasta_assembly {
     
     label ( workflow.profile.contains('slurm') ? 'wice_bigmem' : 'cpu_high')
 
-    publishDir path: "${params.outdir}/${params.sampleid}/", mode: 'copy', pattern: "*csv"
-    publishDir path: "${params.outdir}/${params.sampleid}/", mode: 'copy', pattern: "*json"
-    publishDir path: "${params.outdir}/${params.sampleid}/", mode: 'copy', pattern: "*log"
-    publishDir path: "${params.outdir}/${params.sampleid}/", mode: 'copy', pattern: "*conf"
-    publishDir path: "${params.outdir}/${params.sampleid}/", mode: 'copy', pattern: "*html"
+    publishDir path: "${params.outdir}/${params.sampleid}/", mode: 'copy'
+    //publishDir path: "${params.outdir}/${params.sampleid}/", mode: 'copy', pattern: "*json"
+    //publishDir path: "${params.outdir}/${params.sampleid}/", mode: 'copy', pattern: "*log"
+    //publishDir path: "${params.outdir}/${params.sampleid}/", mode: 'copy', pattern: "*conf"
+    //publishDir path: "${params.outdir}/${params.sampleid}/", mode: 'copy', pattern: "*html"
  
 
     input:
