@@ -21,6 +21,6 @@ process fast5_2pod5 {
     script:
     """
     pod5 convert fast5 -r -t $task.cpus $ont_base \
-    ./pod5/${params.sampleid}.pod5
+    -o ./pod5/${params.sampleid}.pod5
     """
 }
