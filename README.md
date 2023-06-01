@@ -105,7 +105,7 @@ To launch pipeline, you follow the same steps as previously, but your nextflow c
 - [ ] update clair3 to 1.0.2 + add new rerio models 
 - [ ] update dorado to 0.3.0 
     - [ ] update dorado module accordingly 
-- make the bam alignment more effective (too time consuming atm)
+- [ ] make the bam alignment more effective (too time consuming atm)
 
 ### In Progress
 
