@@ -134,17 +134,13 @@ workflow slurm_dorado {
     modkit_stats ( minimap_align_bamout_qscore.out.bam )
 
     // variant calling from alignment
-    
-    // deepvariant( ubam_to_bam.out.mapped_bam, index_bam.out.bam_index, genomeref )
-    // filter_snp_indel( deepvariant.out.indel_snv_vcf )
-
-    // TODO test this
+        
     clair3_variant_calling(minimap_align_bamout_qscore.out.bam, minimap_align_bamout_qscore.out.idx, genomeref, genomerefidx)
     filter_snp_indel( clair3_variant_calling.out.snp_indel )
     
     sniffles( minimap_align_bamout_qscore.out.bam, minimap_align_bamout_qscore.out.idx, genomeref )
     filtersniffles( sniffles.out.sv_calls )
-    // TODO test this
+    
     // SV size visualisation
     extract_SV_lengths( filtersniffles.out.variants_pass )
     plot_SV_lengths( extract_SV_lengths.out.dels, extract_SV_lengths.out.ins)
@@ -154,6 +150,9 @@ workflow slurm_dorado {
     // phasing
     longphase_phase( genomeref, filter_snp_indel.out.variants_pass, filtersniffles.out.variants_pass, minimap_align_bamout_qscore.out.bam, minimap_align_bamout_qscore.out.idx )
     longphase_tag( longphase_phase.out.snv_indel_phased, longphase_phase.out.sv_phased, minimap_align_bamout_qscore.out.bam, minimap_align_bamout_qscore.out.idx )
+
+     // crossstitch
+    crossstitch( longphase_phase.out.snv_indel_phased, longphase_phase.out.sv_phased, minimap_align_bamout_qscore.out.bam, genomeref, params.karyotype )
 
     // TODO
     // add annotation dfam R script
