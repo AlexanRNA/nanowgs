@@ -250,6 +250,38 @@ workflow fastq_to_variants {
     filtersniffles( sniffles.out.sv_calls )
 }
 
+/*
+* SNP calling, longphase, crossstitch
+* 
+*/
+workflow bam_to_crossstitch {
+    // genome
+    genomeref = Channel.fromPath( params.genomeref, checkIfExists: true  )
+    genomerefidx = Channel.fromPath( params.genomerefindex, checkIfExists: true )
+
+    inputbam = Channel.fromPath( params.bam , checkIfExists: true )
+    inputbamidx = Channel.fromPath( params.bamidx , checkIfExists: true )
+   
+    clair3_variant_calling(inputbam, inputbamidx, genomeref, genomerefidx)
+    filter_snp_indel( clair3_variant_calling.out.snp_indel )
+
+    sniffles( inputbam, inputbamidx, genomeref )
+    filtersniffles( sniffles.out.sv_calls )
+    
+    // SV size visualisation
+    extract_SV_lengths( filtersniffles.out.variants_pass )
+    plot_SV_lengths( extract_SV_lengths.out.dels, extract_SV_lengths.out.ins)
+
+
+    // longphase
+    // phasing
+    longphase_phase( genomeref, filter_snp_indel.out.variants_pass, filtersniffles.out.variants_pass, inputbam, inputbamidx )
+    longphase_tag( longphase_phase.out.snv_indel_phased, longphase_phase.out.sv_phased, inputbam, inputbamidx )
+
+    // crossstitch
+    crossstitch( longphase_phase.out.snv_indel_phased, longphase_phase.out.sv_phased, inputbam, genomeref, params.karyotype )
+}
+
 
 /* 
 * Guppy basecalling
