@@ -32,7 +32,7 @@ process create_personal_genome {
         $genomeref \
         ${params.sampleid} \
         $karyotype \
-        0
+        1
     """
 }
 
