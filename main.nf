@@ -4,7 +4,7 @@
             N A N O W G S
 ====================================
  nanowgs Analysis Pipeline.
- https://github.com/jdemeul/nanowgs
+https://github.com/AlexanRNA/nanowgs
 ------------------------------------
 */
 
@@ -78,11 +78,11 @@ include { mosdepth; mosdepth_plot} from './modules/mosdepth'
 include { extract_SV_lengths; plot_SV_lengths } from './modules/r-visualisation'
 include {modkit_stats} from './modules/modkit'
 
-// include { create_lra_index; lra_alignment } from './modules/lra'
 
 /*
 * Dorado basecalling
-*
+* Allows to basecall directly from fast5 or pod5
+* The output is a bam file
 */
 workflow dorado_call {
     // use the below line only if skip is still present 
@@ -106,7 +106,7 @@ workflow dorado_call {
 
 /**
 * Slurm pipeline using dorado output
-*
+* 
 */
 workflow slurm_dorado {
     genomeref = Channel.fromPath( params.genomeref, checkIfExists: true  )
