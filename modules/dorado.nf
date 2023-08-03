@@ -31,15 +31,19 @@ process basecall_dorado {
     if ( params.mod_bases == '' ) {
         // do not call modified bases
         set val(mod_bases) ''
+        set_val(name_mod_calls) ''
     } else if ( params.rerio_config != '') {
         // call modified bases using rerio model
         // check which modified bases to call
         if ( params.mod_bases == 'm6A') {
             set val(mod_bases) '--modified-bases-models res_dna_r10.4.1_e8.2_400bps_sup@v4.0.1_6mA@v2'
+            set val(name_mod_calls) 'm6A'
         } else if ( params.mod_bases == '5mC') {
             set val(mod_bases) '--modified-bases-models res_dna_r10.4.1_e8.2_400bps_sup@v4.0.1_5mC@v2'
+            set val(name_mod_calls) '5mC'
         } else { // call both 5mC and m6A
             set val(mod_bases) '--modified-bases-models res_dna_r10.4.1_e8.2_400bps_sup@v4.0.1_5mC@v2,res_dna_r10.4.1_e8.2_400bps_sup@v4.0.1_6mA@v2'
+            set val(name_mod_calls) '5mC_m6A'
         }
         
     } else {
@@ -51,7 +55,7 @@ process basecall_dorado {
 	script:
 	"""
 	dorado basecaller !{dorado_config}   -r \
-	$reads_pod5 !{mod_bases} > ${params.sampleid}_${params.mod_bases}_calls.bam
+	$reads_pod5 !{mod_bases} > ${params.sampleid}_${name_mod_calls}_calls.bam
     """
     
     
