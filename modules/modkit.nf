@@ -19,7 +19,7 @@ process modkit_stats {
 
     script:
     """
-    modkit summary $bam > ${params.sampleid}_modstats.txt
+    modkit summary -t $task.cpus --tsv --only-mapped $bam > ${params.sampleid}_modstats.txt
     """
 }
 
