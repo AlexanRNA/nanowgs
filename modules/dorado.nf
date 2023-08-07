@@ -16,47 +16,39 @@ process basecall_dorado {
     output:
     path "${params.sampleid}_mod_calls.bam", emit: ubam 
 
-    // check to see if we need to use rerio model 
-    // check if rerio_config is empty string or not
-    if ( params.rerio_config == '' ) {
-        // use dorado model
-        set val(dorado_config) '/opt/dorado/bin/'+${params.dorado_config}
-    } else {
-        // use rerio model
-        set val(dorado_config) '/rerio/dorado_models/'+{params.rerio_config}
-    }
-
-    // check if we also call modified bases
-    // check if mod_bases is empty string or not
-    if ( params.mod_bases == '' ) {
-        // do not call modified bases
-        set val(mod_bases) ''
-        set_val(name_mod_calls) ''
-    } else if ( params.rerio_config != '') {
-        // call modified bases using rerio model
-        // check which modified bases to call
-        if ( params.mod_bases == 'm6A') {
-            set val(mod_bases) '--modified-bases-models res_dna_r10.4.1_e8.2_400bps_sup@v4.0.1_6mA@v2'
-            set val(name_mod_calls) 'm6A'
-        } else if ( params.mod_bases == '5mC') {
-            set val(mod_bases) '--modified-bases-models res_dna_r10.4.1_e8.2_400bps_sup@v4.0.1_5mC@v2'
-            set val(name_mod_calls) '5mC'
-        } else { // call both 5mC and m6A
-            set val(mod_bases) '--modified-bases-models res_dna_r10.4.1_e8.2_400bps_sup@v4.0.1_5mC@v2,res_dna_r10.4.1_e8.2_400bps_sup@v4.0.1_6mA@v2'
-            set val(name_mod_calls) '5mC_m6A'
-        }
-        
-    } else {
-        // call modified bases using dorado model
-        set val(mod_bases) '--modified-bases '+${params.mod_bases}
-    }
-
-    // write dorado basecalling script  
+    // dorado basecalling script  
 	script:
-	"""
-	dorado basecaller !{dorado_config}   -r \
-	$reads_pod5 !{mod_bases} > ${params.sampleid}_${name_mod_calls}_calls.bam
-    """
+    if ( params.rerio_config == '' ) {
+        """
+	    dorado basecaller /opt/dorado/bin/${params.dorado_config} -r \
+	    $reads_pod5 '--modified-bases '+${params.mod_bases} > ${params.sampleid}_mod_calls.bam
+        """
+    } else { // else use rerio model
+        // figure out which modified bases model to use 
+        if ( params.mod_bases == 'm6A') {
+             """
+	        dorado basecaller /rerio/dorado_models/${params.rerio_config} -r \
+	        $reads_pod5 --modified-bases-models /rerio/dorado_models/res_dna_r10.4.1_e8.2_400bps_sup@v4.0.1_6mA@v2 > \
+            ${params.sampleid}_mod_calls.bam
+            """
+        }
+        else if ( params.mod_bases == '5mC') {
+             """
+	        dorado basecaller /rerio/dorado_models/${params.rerio_config} -r \
+	        $reads_pod5 --modified-bases-models /rerio/dorado_models/res_dna_r10.4.1_e8.2_400bps_sup@v4.0.1_5mC@v2 > \
+            ${params.sampleid}_mod_calls.bam
+            """
+        }
+        else { // else use both models
+             """
+	        dorado basecaller /rerio/dorado_models/${params.rerio_config} -r \
+	        $reads_pod5 --modified-bases-models /rerio/dorado_models/res_dna_r10.4.1_e8.2_400bps_sup@v4.0.1_5mC@v2,/rerio/dorado_models/res_dna_r10.4.1_e8.2_400bps_sup@v4.0.1_6mA@v2 > \
+            ${params.sampleid}_mod_calls.bam
+            """
+        }
+   
+    }
+	
     
     
     
