@@ -32,7 +32,7 @@ include { filter_reads as filter } from './modules/fastp'
 include { parallel_gzip as pigz; parallel_gzip_assembly; parallel_gzip_gfa } from './modules/pigz'
 
 include { minimap_alignment as minimap } from './modules/minimap2'
-include { sam_to_sorted_bam as samtobam; get_haplotype_readids; index_bam ; ubam2fastq ; sam_to_sorted_bam_qscore } from './modules/samtools'
+include { sam_to_sorted_bam as samtobam; bam_to_sorted_bam as bamtobam1; bam_to_sorted_bam as bamtobam2; get_haplotype_readids; index_bam ; ubam2fastq ; sam_to_sorted_bam_qscore } from './modules/samtools'
 
 include { sniffles_sv_calling as sniffles } from './modules/sniffles'
 include { svim_sv_calling as svim } from './modules/svim'
@@ -76,7 +76,7 @@ include { cramino } from './modules/cramino'
 include { kyber } from './modules/kyber'
 include { mosdepth; mosdepth_plot} from './modules/mosdepth'
 include { extract_SV_lengths; plot_SV_lengths } from './modules/r-visualisation'
-include {modkit_stats} from './modules/modkit'
+include { modkit_stats; modkit_adjustmods_hmC; modkit_adjustmods_m6A; modkit_pileup; modkit_pileup as modkit_pileup2 } from './modules/modkit'
 
 
 /*
@@ -109,6 +109,7 @@ workflow dorado_call {
 * 
 */
 workflow slurm_dorado {
+
     genomeref = Channel.fromPath( params.genomeref, checkIfExists: true  )
     genomerefidx = Channel.fromPath( params.genomerefindex, checkIfExists: true  )
    
@@ -131,7 +132,22 @@ workflow slurm_dorado {
     mosdepth_plot ( mosdepth.out.coverage_txt )
 
     //TODO test 
+    // modified bases QC
     modkit_stats ( minimap_align_bamout_qscore.out.bam )
+    modkit_adjustmods_hmC ( minimap_align_bamout_qscore.out.bam )
+    modkit_adjustmods_m6A ( minimap_align_bamout_qscore.out.bam  )
+    bamtobam1 ( modkit_adjustmods_hmC.out.out_bam, genomeref )
+    bamtobam2 ( modkit_adjustmods_m6A.out.out_bam, genomeref )
+
+    // check if input files exist
+    beds = Channel.fromPath( [params.tss_bed, params.ctcf_bed], checkIfExists: true  ).flatten()
+    //ctcf_bed = Channel.fromPath( params.ctcf_bed, checkIfExists: true  )
+    //combinedChannel = tss_bed.zip(ctcf_bed)
+    beds.view()
+    modkit_pileup ( bamtobam1.out.sorted_bam, bamtobam1.out.bam_index, beds )
+    modkit_pileup2 ( bamtobam2.out.sorted_bam, bamtobam2.out.bam_index, beds )
+    
+ 
 
     // variant calling from alignment
         
