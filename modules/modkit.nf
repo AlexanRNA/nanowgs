@@ -1,6 +1,5 @@
 /* 
-* Basecall reads with dorado
-* Note : r9 basecalling is hardcoded due to the bug in this version of dorado (model name mismatch)
+* Summary statistics about modification call in the BAM file
 */
 process modkit_stats {
     label 'modkit'
@@ -25,10 +24,57 @@ process modkit_stats {
 
 /*
 *
+* Remove 5mC and 5hMC modifications from the BAM file
+*/
+process modkit_adjustmods_hmC {
+    label 'modkit'
+    label 'cpu_high'
+    label 'mem_high'
+    label 'time_mid'
+
+    input:
+    path bam
+
+
+    output:
+    path "m6A.bam", emit: out_bam
+
+    script:
+    """
+    modkit adjust-mods -t $task.cpus --ignore m $bam  | modkit \
+    adjust-mods -t $task.cpus --ignore m $bam m6A.bam
+    
+    """
+}
+
+
+/*
+*
+* Remove m6A modifications from the BAM file
+*/
+process modkit_adjustmods_m6A {
+    label 'modkit'
+    label 'cpu_high'
+    label 'mem_high'
+    label 'time_mid'
+
+    input:
+    path bam
+
+
+    output:
+    path "5hmC.bam", emit: out_bam
+
+    script:
+    """
+    modkit adjust-mods -t $task.cpus --ignore a  $bam 5hmC.bam
+    """
+}
+
+/*
+*
 * Pileup BAM modifications into a bedmethyl file
-* Separate files for each modification type
-* // TODO add CTCF and TSS bed files --> cn directly subset bed here
-* // TODO make it possible ot run parallel for CTCF and TSS
+* 
 */
 process modkit_pileup {
     label 'modkit'
@@ -36,20 +82,29 @@ process modkit_pileup {
     label 'mem_mid'
     label 'time_mid'
 
+    publishDir path: "${params.outdir}/${params.sampleid}/${task.process}/", mode: 'copy'
+
     input:
     path bam
-    path bed
+    path idx
+    each bed
 
     output:
-    emit bed5mC
-    emit bed6mA
+    val bedName
+    val bamName
+    path "${params.sampleid}_${bamName}_${bedName}.bed", emit: out_bed
 
     script:
+    bedName = bed.name
+    bamName = bam.name
     """
-    modkit pileup -t $task.cpus --seed 7 \
+    modkit pileup -t $task.cpus \
+    --filter-threshold 0.9 \
     --include-bed $bed \
-    $bam 
+    $bam \
+    "${params.sampleid}_${bamName}_${bedName}.bed"
     """
+
 }
 
 
@@ -58,22 +113,22 @@ process modkit_pileup {
 */
 // TODO create docker with bedtools
 // TODO files for CTCF and TSS intersect
-process intersect {
-    
-    label 'cpu_mid'
-    label 'mem_mid'
-    label 'time_mid'
-}
+//process intersect {
+//    
+//    label 'cpu_mid'
+//    label 'mem_mid'/
+//    label 'time_mid'
+//}
 
 /*
 * visualise the bedmethyl file intesected with CTCF and TSS
 */
 // TODO create docker with R and dependencies
 // TODO add R script to the bin folder
-process visualise_intersect {
-    label 'cpu_low'
-    label 'mem_mid'
-    label 'time_mid'
+//process visualise_intersect {
+//    label 'cpu_low'
+//    label 'mem_mid'
+////    label 'time_mid'
 
-}
+//}
 
