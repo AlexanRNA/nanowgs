@@ -40,6 +40,40 @@ process sam_to_sorted_bam {
 
 }
 
+/* 
+* Bam to sorted bam conversion using samtools
+* specifically written for modkit bam processing
+*/
+process bam_to_sorted_bam {
+    label 'cpu_high'
+    label 'mem_mid'
+    label 'time_mid'
+    label 'samtools'
+    label ( workflow.profile.contains('slurm') ? 'wice_bigmem' : 'cpu_high')
+
+
+    input:
+    path mapped_bam
+    path genomeref
+
+    output:
+    val bamName
+    path "${bamName}_sorted.bam", emit: sorted_bam
+    path "${bamName}_sorted.bam.bai", emit: bam_index
+
+    script:
+    def samtools_mem = Math.floor(task.memory.getMega() / task.cpus ) as int
+    bamName = mapped_bam.name
+    """
+    samtools sort -@ $task.cpus \
+        --write-index \
+        -o ${bamName}_sorted.bam##idx##${bamName}_sorted.bam.bai \
+        -m ${samtools_mem}M \
+        $mapped_bam
+    """
+
+}
+
 
 
 /* 
