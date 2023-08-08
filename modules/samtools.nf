@@ -3,9 +3,9 @@
 * Sam to sorted bam conversion using samtools
 */
 process sam_to_sorted_bam {
-    label 'cpu_low'
-    label 'mem_low'
-    label 'time_low'
+    label 'cpu_mid'
+    label 'mem_mid'
+    label 'time_high'
     label 'samtools'
     label ( workflow.profile.contains('slurm') ? 'wice_bigmem' : 'cpu_high')
 

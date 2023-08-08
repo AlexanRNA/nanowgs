@@ -109,7 +109,7 @@ process modkit_pileup {
 
 process overlap {
     label 'bedtools'
-    label 'cpu_mid'
+    label 'cpu_high'
     label 'mem_mid'
     label 'time_mid'
 
@@ -127,7 +127,7 @@ process overlap {
     bedName = bed.name
     modbedName = modbed.name
     """
-    bedtools intersect -a $bed -b $modbed -wa -wb \
+    bedtools intersect -a $modbed -b $bed -wa -wb \
    > "${params.sampleid}__${bedName}_${modbedName}_intersect.bed"
     """
 }
