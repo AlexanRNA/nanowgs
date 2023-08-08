@@ -82,29 +82,54 @@ process modkit_pileup {
     label 'mem_mid'
     label 'time_mid'
 
-    publishDir path: "${params.outdir}/${params.sampleid}/${task.process}/", mode: 'copy'
+    publishDir path: "${params.outdir}/${params.sampleid}/modbed/", mode: 'copy'
 
     input:
     path bam
     path idx
-    each bed
+    //each bed
 
     output:
-    val bedName
+    //val bedName
     val bamName
-    path "${params.sampleid}_${bamName}_${bedName}.bed", emit: out_bed
+    path "${params.sampleid}_${bamName}.bed", emit: out_bed
 
     script:
-    bedName = bed.name
+    //bedName = bed.name
     bamName = bam.name
     """
     modkit pileup -t $task.cpus \
     --filter-threshold 0.9 \
-    --include-bed $bed \
+    --only-tabs \
     $bam \
-    "${params.sampleid}_${bamName}_${bedName}.bed"
+    "${params.sampleid}_${bamName}.bed"
     """
 
+}
+
+process overlap {
+    label 'bedtools'
+    label 'cpu_mid'
+    label 'mem_mid'
+    label 'time_mid'
+
+    input:
+    path modbed
+    each bed
+
+   output:
+    val bedName
+    val modbedName
+    path "${params.sampleid}__${bedName}_${modbedName}_intersect.bed", emit: out_bed
+
+
+    script:
+    bedName = bed.name
+    modbedName = modbed.name
+    """
+    bedtools intersect -a $bed -b $modbed -wa -wb \
+   > "${params.sampleid}__${bedName}_${modbedName}_intersect.bed"
+    """
 }
 
 
