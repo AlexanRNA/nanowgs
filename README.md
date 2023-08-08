@@ -1,7 +1,7 @@
 # Nanowgs
 
 This repository contains the Nextflow pipeline used to analyse Nanopore whole-genome sequences in the context of ASAP.
-Current version as of 20230301
+Current version as of 2023-08-08
 
 ## Nanowgs on wice
 
@@ -55,10 +55,13 @@ tmux new-session -A -s nanowgs
 --outdir /path/to/output_dir -with-report -with-timeline 
  ```
 
- ## Dorado basecalling ( April 2023 ) 
- To run new ONT basecaller, use the following command. It will first convert fast5 files to pod5 and then proceed to basecall using ONT Dorado (v0.2.4). Make sure you specify the model and modified bases required.
+ ## Dorado basecalling ( August 2023 ) 
+ To run new ONT basecaller, use the following command. It will first convert fast5 files to pod5 and then proceed to basecall using ONT Dorado (v0.3.2). Make sure you specify the model and modified bases required.
+
  If no output directory is specified, the output will be located wherever the nextflow pipeline was started.
  You provide `--fast5` in case your data is in fast5 format and not in pod5. In case of pod5, no parameter/flag needs to be provided.
+
+ You can also use [rerio modified basecalling models](https://github.com/nanoporetech/rerio/tree/master#dorado-models). In that case, you need to update `rerio_config` with the native basecalling model and provide base modification you wish to call in `mod_bases`. 
  ```
 /path/to/repo/nanowgs/main.nf \
 -profile singularity,slurm \
@@ -71,7 +74,7 @@ tmux new-session -A -s nanowgs
 -with-report -with-timeline 
  ```
 
- ## Following analysis (March 2023, **still in development**)
+ ## Following analysis (August 2023, **still in development**)
 
 This is the command that can be used to run subsequent analysis. However, bear in mind, this part of pipeline is still in development and was not fully tested. The example below is specific for LSK114 chemistry basecalled with `dna_r10.4.1_e8.2_400bps_sup@v4.0.0` basecalling model
 ```
@@ -83,17 +86,8 @@ This is the command that can be used to run subsequent analysis. However, bear i
 --outdir /path/to/output_dir \
 --clair3_config "/opt/bin/rerio/clair3_models/r1041_e82_400bps_sup_v400" \
 --shasta_config "Nanopore-R10-Fast-Nov2022" \
+--karyotype xy \
 -with-timeline -with-report
-```
-
-## Nanowgs on genius
-
-You can run this pipeline also on genius. Preferably, you do the basecalling beforehand.
-To launch pipeline, you follow the same steps as previously, but your nextflow command is: 
-```
-/path/to/repo/nanowgs/main.nf -profile singularity,qsub -entry wgs_analysis_fastq \
---ont_base_dir /path/to/fastqs/ --outdir /path/to/output_dir \
---karyotype xx -with-report -with-timeline
 ```
 
 
@@ -105,14 +99,15 @@ To launch pipeline, you follow the same steps as previously, but your nextflow c
 
 ### In Progress
 
-- [ ] update dorado to 0.3.0 
-    - [ ] update dorado module accordingly  
+- [ ] modified basecalling QC/checking 
+
 
 ### Done ✓
 
 - [x] Create my first TODO.md  
 - [x] update LongPhase to 1.5 
 - [x] update clair3 to 1.0.2 + add new rerio models
+- [x] update dorado to 0.3.2
 
 
 
