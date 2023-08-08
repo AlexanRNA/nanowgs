@@ -76,7 +76,7 @@ include { cramino } from './modules/cramino'
 include { kyber } from './modules/kyber'
 include { mosdepth; mosdepth_plot} from './modules/mosdepth'
 include { extract_SV_lengths; plot_SV_lengths } from './modules/r-visualisation'
-include { modkit_stats; modkit_adjustmods_hmC; modkit_adjustmods_m6A; modkit_pileup; modkit_pileup as modkit_pileup2 } from './modules/modkit'
+include { modkit_stats; modkit_adjustmods_hmC; modkit_adjustmods_m6A; modkit_pileup; modkit_pileup as modkit_pileup2; overlap as overlap1; overlap as overlap2 } from './modules/modkit'
 
 
 /*
@@ -136,16 +136,27 @@ workflow slurm_dorado {
     modkit_stats ( minimap_align_bamout_qscore.out.bam )
     modkit_adjustmods_hmC ( minimap_align_bamout_qscore.out.bam )
     modkit_adjustmods_m6A ( minimap_align_bamout_qscore.out.bam  )
+
+    // sort andd index modbams
     bamtobam1 ( modkit_adjustmods_hmC.out.out_bam, genomeref )
     bamtobam2 ( modkit_adjustmods_m6A.out.out_bam, genomeref )
-
+    
     // check if input files exist
     beds = Channel.fromPath( [params.tss_bed, params.ctcf_bed], checkIfExists: true  ).flatten()
-    //ctcf_bed = Channel.fromPath( params.ctcf_bed, checkIfExists: true  )
-    //combinedChannel = tss_bed.zip(ctcf_bed)
+    
     beds.view()
-    modkit_pileup ( bamtobam1.out.sorted_bam, bamtobam1.out.bam_index, beds )
-    modkit_pileup2 ( bamtobam2.out.sorted_bam, bamtobam2.out.bam_index, beds )
+    modkit_pileup ( bamtobam1.out.sorted_bam, bamtobam1.out.bam_index )
+    modkit_pileup2 ( bamtobam2.out.sorted_bam, bamtobam2.out.bam_index )
+
+    // bedtools intersect
+    overlap1 ( modkit_pileup.out.out_bed, beds )
+    overlap2 ( modkit_pileup2.out.out_bed, beds )
+
+
+
+    
+
+
     
  
 
