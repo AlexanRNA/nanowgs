@@ -3,9 +3,9 @@
 * Sam to sorted bam conversion using samtools
 */
 process sam_to_sorted_bam {
-    label 'cpu_high'
-    label 'mem_mid'
-    label 'time_mid'
+    label 'cpu_low'
+    label 'mem_low'
+    label 'time_low'
     label 'samtools'
     label ( workflow.profile.contains('slurm') ? 'wice_bigmem' : 'cpu_high')
 
@@ -53,7 +53,7 @@ process bam_to_sorted_bam {
 
 
     input:
-    path mapped_bam
+    each bam
     path genomeref
 
     output:
@@ -63,13 +63,13 @@ process bam_to_sorted_bam {
 
     script:
     def samtools_mem = Math.floor(task.memory.getMega() / task.cpus ) as int
-    bamName = mapped_bam.name
+    bamName = bam.name
     """
     samtools sort -@ $task.cpus \
         --write-index \
         -o ${bamName}_sorted.bam##idx##${bamName}_sorted.bam.bai \
         -m ${samtools_mem}M \
-        $mapped_bam
+        $bam
     """
 
 }
