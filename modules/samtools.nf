@@ -58,16 +58,16 @@ process bam_to_sorted_bam {
 
     output:
     val bamName
-    path "${bamName}_sorted.bam", emit: sorted_bam
-    path "${bamName}_sorted.bam.bai", emit: bam_index
+    path "${bamName}.bam", emit: sorted_bam
+    path "${bamName}.bam.bai", emit: bam_index
 
     script:
     def samtools_mem = Math.floor(task.memory.getMega() / task.cpus ) as int
-    bamName = bam.name
+    bamName = bam.getName().split("\\.")[0]
     """
     samtools sort -@ $task.cpus \
         --write-index \
-        -o ${bamName}_sorted.bam##idx##${bamName}_sorted.bam.bai \
+        -o ${bamName}.bam##idx##${bamName}.bam.bai \
         -m ${samtools_mem}M \
         $bam
     """

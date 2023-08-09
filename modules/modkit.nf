@@ -96,7 +96,7 @@ process modkit_pileup {
 
     script:
     //bedName = bed.name
-    bamName = bam.name
+    bamName = bam.name.split("\\.")[0]
     """
     modkit pileup -t $task.cpus \
     --filter-threshold 0.9 \
@@ -120,12 +120,12 @@ process overlap {
    output:
     val bedName
     val modbedName
-    path "${params.sampleid}__${bedName}_${modbedName}_intersect.bed", emit: out_bed
+    path "${params.sampleid}__${bedName}_${modbedName}_intersect.bed", emit: intersect_beds
 
 
     script:
-    bedName = bed.name
-    modbedName = modbed.name
+    bedName = bed.name.split("\\.")[0]
+    modbedName = modbed.name.split("\\.")[0]
     """
     bedtools intersect -a $modbed -b $bed -wa -wb \
    > "${params.sampleid}__${bedName}_${modbedName}_intersect.bed"
@@ -134,26 +134,27 @@ process overlap {
 
 
 /*
-* visualise the bedmethyl files in R
-*/
-// TODO create docker with bedtools
-// TODO files for CTCF and TSS intersect
-//process intersect {
-//    
-//    label 'cpu_mid'
-//    label 'mem_mid'/
-//    label 'time_mid'
-//}
-
-/*
 * visualise the bedmethyl file intesected with CTCF and TSS
 */
-// TODO create docker with R and dependencies
-// TODO add R script to the bin folder
-//process visualise_intersect {
-//    label 'cpu_low'
-//    label 'mem_mid'
-////    label 'time_mid'
+process visualise_intersect {
 
-//}
+    label 'cpu_mid'
+    label 'mem_mid'
+    label 'time_mid'
+    label 'rgen'
+
+    publishDir path: "${params.outdir}/${params.sampleid}/modbed/", mode: 'copy'
+
+    input:
+    each intersect
+     
+    output:
+    path "*pdf"
+
+    script:
+    """
+    modkit_plot_mod.R $intersect
+    """
+
+ }
 

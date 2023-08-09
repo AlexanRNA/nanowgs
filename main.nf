@@ -76,7 +76,7 @@ include { cramino } from './modules/cramino'
 include { kyber } from './modules/kyber'
 include { mosdepth; mosdepth_plot} from './modules/mosdepth'
 include { extract_SV_lengths; plot_SV_lengths } from './modules/r-visualisation'
-include { modkit_stats; modkit_adjustmods_hmC; modkit_adjustmods_m6A; modkit_pileup; modkit_pileup as modkit_pileup2; overlap as overlap1; overlap as overlap2 } from './modules/modkit'
+include { modkit_stats; modkit_adjustmods_hmC; modkit_adjustmods_m6A; modkit_pileup; modkit_pileup as modkit_pileup2; overlap as overlap1; overlap as overlap2; visualise_intersect; visualise_intersect as visualise_intersect2 } from './modules/modkit'
 
 
 /*
@@ -153,10 +153,9 @@ workflow slurm_dorado {
     overlap2 ( modkit_pileup2.out.out_bed, beds )
 
 
-
-    
-
-
+    // visualise intersect
+    visualise_intersect ( overlap1.out.intersect_beds ) 
+    visualise_intersect2 ( overlap2.out.intersect_beds )
     
  
 
