@@ -68,7 +68,7 @@ process modkit_adjustmods_m6A {
     script:
     """
     modkit adjust-mods -t $task.cpus --ignore a  $bam 5hmC.bam
-    """
+    """ 
 }
 
 /*
