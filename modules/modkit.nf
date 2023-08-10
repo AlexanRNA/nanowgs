@@ -42,7 +42,7 @@ process modkit_adjustmods_hmC {
     script:
     """
     modkit adjust-mods -t $task.cpus --ignore m $bam  | modkit \
-    adjust-mods -t $task.cpus --ignore m $bam m6A.bam
+    adjust-mods -t $task.cpus --ignore h $bam m6A.bam
     
     """
 }
