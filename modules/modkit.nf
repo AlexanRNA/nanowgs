@@ -79,7 +79,7 @@ process modkit_adjustmods_m6A {
 process modkit_pileup {
     label 'modkit'
     label 'cpu_mid'
-    label 'mem_mid'
+    label 'mem_high'
     label 'time_mid'
 
     publishDir path: "${params.outdir}/${params.sampleid}/modbed/", mode: 'copy'
