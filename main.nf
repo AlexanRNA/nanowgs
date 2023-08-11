@@ -76,7 +76,7 @@ include { cramino } from './modules/cramino'
 include { kyber } from './modules/kyber'
 include { mosdepth; mosdepth_plot} from './modules/mosdepth'
 include { extract_SV_lengths; plot_SV_lengths } from './modules/r-visualisation'
-include { modkit_stats; modkit_adjustmods_hmC; modkit_adjustmods_m6A; modkit_pileup; modkit_pileup as modkit_pileup2; overlap as overlap1; overlap as overlap2; visualise_intersect; visualise_intersect as visualise_intersect2 } from './modules/modkit'
+include { modkit_stats; modkit_adjustmods_5mC; modkit_adjustmods_5hC; modkit_adjustmods_m6A; modkit_pileup; modkit_pileup as modkit_pileup2; overlap as overlap1; overlap as overlap2; visualise_intersect; visualise_intersect as visualise_intersect2 } from './modules/modkit'
 
 
 /*
@@ -135,11 +135,12 @@ workflow slurm_dorado {
     // modified bases QC
     if ( params.mod_bases != null) {
         modkit_stats ( minimap_align_bamout_qscore.out.bam )
-        modkit_adjustmods_hmC ( minimap_align_bamout_qscore.out.bam )
+        modkit_adjustmods_5hC ( minimap_align_bamout_qscore.out.bam )
+        modkit_adjustmods_5mC ( modkit_adjustmods_5hC.out.out_bam )
         modkit_adjustmods_m6A ( minimap_align_bamout_qscore.out.bam  )
 
         // sort andd index modbams
-        bamtobam1 ( modkit_adjustmods_hmC.out.out_bam, genomeref )
+        bamtobam1 ( modkit_adjustmods_5mC.out.out_bam, genomeref )
         bamtobam2 ( modkit_adjustmods_m6A.out.out_bam, genomeref )
     
         // check if input files exist

@@ -26,7 +26,30 @@ process modkit_stats {
 *
 * Remove 5mC and 5hMC modifications from the BAM file
 */
-process modkit_adjustmods_hmC {
+process modkit_adjustmods_5hC {
+    label 'modkit'
+    label 'cpu_high'
+    label 'mem_high'
+    label 'time_mid'
+
+    input:
+    path bam
+
+
+    output:
+    path "5hC_m6A.bam", emit: out_bam
+
+    script:
+    """
+    modkit  adjust-mods -t $task.cpus --ignore h $bam 5hC_m6A.bam
+    """
+}
+
+/*
+*
+* Remove 5mC and 5hMC modifications from the BAM file
+*/
+process modkit_adjustmods_5mC {
     label 'modkit'
     label 'cpu_high'
     label 'mem_high'
@@ -41,9 +64,7 @@ process modkit_adjustmods_hmC {
 
     script:
     """
-    modkit adjust-mods -t $task.cpus --ignore m $bam  | modkit \
-    adjust-mods -t $task.cpus --ignore h $bam m6A.bam
-    
+    modkit adjust-mods -t $task.cpus --ignore m $bam m6A.bam
     """
 }
 
