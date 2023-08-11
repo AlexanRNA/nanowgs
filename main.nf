@@ -133,29 +133,32 @@ workflow slurm_dorado {
 
     //TODO test 
     // modified bases QC
-    modkit_stats ( minimap_align_bamout_qscore.out.bam )
-    modkit_adjustmods_hmC ( minimap_align_bamout_qscore.out.bam )
-    modkit_adjustmods_m6A ( minimap_align_bamout_qscore.out.bam  )
+    if ( params.mod_bases != null) {
+        modkit_stats ( minimap_align_bamout_qscore.out.bam )
+        modkit_adjustmods_hmC ( minimap_align_bamout_qscore.out.bam )
+        modkit_adjustmods_m6A ( minimap_align_bamout_qscore.out.bam  )
 
-    // sort andd index modbams
-    bamtobam1 ( modkit_adjustmods_hmC.out.out_bam, genomeref )
-    bamtobam2 ( modkit_adjustmods_m6A.out.out_bam, genomeref )
+        // sort andd index modbams
+        bamtobam1 ( modkit_adjustmods_hmC.out.out_bam, genomeref )
+        bamtobam2 ( modkit_adjustmods_m6A.out.out_bam, genomeref )
     
-    // check if input files exist
-    beds = Channel.fromPath( [params.tss_bed, params.ctcf_bed], checkIfExists: true  ).flatten()
+        // check if input files exist
+        beds = Channel.fromPath( [params.tss_bed, params.ctcf_bed], checkIfExists: true  ).flatten()
     
-    beds.view()
-    modkit_pileup ( bamtobam1.out.sorted_bam, bamtobam1.out.bam_index )
-    modkit_pileup2 ( bamtobam2.out.sorted_bam, bamtobam2.out.bam_index )
+        beds.view()
+        modkit_pileup ( bamtobam1.out.sorted_bam, bamtobam1.out.bam_index )
+        modkit_pileup2 ( bamtobam2.out.sorted_bam, bamtobam2.out.bam_index )
 
-    // bedtools intersect
-    overlap1 ( modkit_pileup.out.out_bed, beds )
-    overlap2 ( modkit_pileup2.out.out_bed, beds )
+        // bedtools intersect
+        overlap1 ( modkit_pileup.out.out_bed, beds )
+        overlap2 ( modkit_pileup2.out.out_bed, beds )
 
 
-    // visualise intersect
-    visualise_intersect ( overlap1.out.intersect_beds ) 
-    visualise_intersect2 ( overlap2.out.intersect_beds )
+        // visualise intersect
+        visualise_intersect ( overlap1.out.intersect_beds ) 
+        visualise_intersect2 ( overlap2.out.intersect_beds )
+    
+    }
     
  
 

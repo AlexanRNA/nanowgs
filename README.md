@@ -76,7 +76,8 @@ tmux new-session -A -s nanowgs
 
  ## Following analysis (August 2023, **still in development**)
 
-This is the command that can be used to run subsequent analysis. However, bear in mind, this part of pipeline is still in development and was not fully tested. The example below is specific for LSK114 chemistry basecalled with `dna_r10.4.1_e8.2_400bps_sup@v4.0.0` basecalling model
+This is the command that can be used to run subsequent analysis. However, bear in mind, this part of pipeline is still in development and was not fully tested. The example below is specific for LSK114 chemistry basecalled with `dna_r10.4.1_e8.2_400bps_sup@v4.0.0` basecalling model.
+In case your data also hase modified bases information, do include `--mod_bases 5mC` (5mC is just exmaple) to your command to get some statistics and visualisations around TSS/CTCF.
 ```
 /path/to/repo/nanowgs/main.nf \
 -profile singularity,slurm \
