@@ -76,7 +76,7 @@ include { cramino } from './modules/cramino'
 include { kyber } from './modules/kyber'
 include { mosdepth; mosdepth_plot} from './modules/mosdepth'
 include { extract_SV_lengths; plot_SV_lengths } from './modules/r-visualisation'
-include { modkit_stats; modkit_adjustmods_5mC; modkit_adjustmods_5hC; modkit_adjustmods_m6A; modkit_pileup; modkit_pileup as modkit_pileup2; overlap as overlap1; overlap as overlap2; visualise_intersect; visualise_intersect as visualise_intersect2 } from './modules/modkit'
+include { modkit_stats; modkit_adjustmods_5mC; modkit_adjustmods_5hC; modkit_adjustmods_m6A; modkit_pileup; modkit_pileup as modkit_pileup2; remove_a; overlap as overlap1; overlap as overlap2; visualise_intersect; visualise_intersect as visualise_intersect2 } from './modules/modkit'
 
 
 /*
@@ -133,7 +133,7 @@ workflow slurm_dorado {
 
     //TODO test 
     // modified bases QC
-    if ( params.mod_bases != null) {
+    if ( params.mod_bases != "") {
         modkit_stats ( minimap_align_bamout_qscore.out.bam )
         modkit_adjustmods_5hC ( minimap_align_bamout_qscore.out.bam )
         modkit_adjustmods_5mC ( modkit_adjustmods_5hC.out.out_bam )
@@ -150,9 +150,12 @@ workflow slurm_dorado {
         modkit_pileup ( bamtobam1.out.sorted_bam, bamtobam1.out.bam_index )
         modkit_pileup2 ( bamtobam2.out.sorted_bam, bamtobam2.out.bam_index )
 
+        // remove "a" rows from modkit pileup
+        remove_a ( modkit_pileup2.out.out_bed )
+
         // bedtools intersect
         overlap1 ( modkit_pileup.out.out_bed, beds )
-        overlap2 ( modkit_pileup2.out.out_bed, beds )
+        overlap2 ( remove_a.out.out_bed, beds )
 
 
         // visualise intersect

@@ -128,6 +128,27 @@ process modkit_pileup {
 
 }
 
+/**
+* process to remove the "a" from the bed file
+*/
+process remove_a {
+    label 'bedtools'
+    label 'cpu_mid'
+    label 'mem_mid'
+    label 'time_low'
+
+    input:
+    path bed
+
+    output:
+    path "${params.sampleid}_5mC.bed", emit: out_bed
+
+    script:
+    """
+    grep -v "a" $bed > "${params.sampleid}_5mC.bed"
+    """
+}
+
 process overlap {
     label 'bedtools'
     label 'cpu_high'
@@ -148,7 +169,7 @@ process overlap {
     bedName = bed.name.split("\\.")[0]
     modbedName = modbed.name.split("\\.")[0]
     """
-    bedtools intersect -a $modbed -b $bed -wa -wb \
+    bedtools intersect -wa -wb -a $modbed -b $bed  \
    > "${params.sampleid}__${bedName}_${modbedName}_intersect.bed"
     """
 }
