@@ -36,7 +36,7 @@ compute_mean_methylation <- function(data) {
   colnames(meanmeth)[1] <- "frac"
   
   # compute mean coverage
-  meancov <- data.frame(c(by(data = data, INDICES = data$relpos, FUN = function(x)  mean(x$X5, na.rm = TRUE))))
+  meancov <- data.frame(c(by(data = data, INDICES = data$relpos, FUN = function(x)  mean(x$X5, na.rm = FALSE))))
   colnames(meancov)[1] <- "meancov"
   meanmeth$meancov <- meancov$meancov
   
