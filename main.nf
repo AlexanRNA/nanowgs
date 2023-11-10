@@ -280,6 +280,24 @@ workflow fastq_to_variants {
     
     sniffles( minimap_align_bamout.out.bam, minimap_align_bamout.out.idx, genomeref )
     filtersniffles( sniffles.out.sv_calls )
+
+    // SV size visualisation
+    extract_SV_lengths( filtersniffles.out.variants_pass )
+    plot_SV_lengths( extract_SV_lengths.out.dels, extract_SV_lengths.out.ins)
+
+
+    // longphase
+    // phasing
+    longphase_phase( genomeref, filter_snp_indel.out.variants_pass, filtersniffles.out.variants_pass, minimap_align_bamout_qscore.out.bam, minimap_align_bamout_qscore.out.idx )
+    longphase_tag( longphase_phase.out.snv_indel_phased, longphase_phase.out.sv_phased, minimap_align_bamout_qscore.out.bam, minimap_align_bamout_qscore.out.idx )
+
+     // crossstitch
+    crossstitch( longphase_phase.out.snv_indel_phased, longphase_phase.out.sv_phased, minimap_align_bamout_qscore.out.bam, genomeref, params.karyotype )
+
+    // de novo assembly 
+    shasta( filter.out.fastq_trimmed )
+    parallel_gzip_assembly ( shasta.out.assembly )
+    parallel_gzip_gfa ( shasta.out.assembly_gfa )
 }
 
 /*
