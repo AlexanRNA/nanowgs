@@ -288,11 +288,11 @@ workflow fastq_process {
 
     // longphase
     // phasing
-    longphase_phase( genomeref, filter_snp_indel.out.variants_pass, filtersniffles.out.variants_pass, minimap_align_bamout_qscore.out.bam, minimap_align_bamout_qscore.out.idx )
-    longphase_tag( longphase_phase.out.snv_indel_phased, longphase_phase.out.sv_phased, minimap_align_bamout_qscore.out.bam, minimap_align_bamout_qscore.out.idx )
+    longphase_phase( genomeref, filter_snp_indel.out.variants_pass, filtersniffles.out.variants_pass, minimap_align_bamout.out.bam, minimap_align_bamout.out.idx )
+    longphase_tag( longphase_phase.out.snv_indel_phased, longphase_phase.out.sv_phased, minimap_align_bamout.out.bam, minimap_align_bamout.out.idx )
 
      // crossstitch
-    crossstitch( longphase_phase.out.snv_indel_phased, longphase_phase.out.sv_phased, minimap_align_bamout_qscore.out.bam, genomeref, params.karyotype )
+    crossstitch( longphase_phase.out.snv_indel_phased, longphase_phase.out.sv_phased, minimap_align_bamout.out.bam, genomeref, params.karyotype )
 
     // de novo assembly 
     shasta( filter.out.fastq_trimmed )
