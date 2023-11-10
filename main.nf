@@ -257,7 +257,7 @@ workflow slurm_guppy {
 * Fastq to SV/SNP call
 * 
 */
-workflow fastq_to_variants {
+workflow fastq_process {
     // genome
     genomeref = Channel.fromPath( params.genomeref, checkIfExists: true  )
     genomerefidx = Channel.fromPath( params.genomerefindex, checkIfExists: true )
