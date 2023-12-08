@@ -40,14 +40,14 @@ process sniffles_sv_filtering {
     // val step
 
     output:
-    path "*_PASS.vcf", emit: variants_pass
+    path "*_PASS.vcf.gz", emit: variants_pass
     path "*.vchk", emit: vcfstats
 
     script:
     """
     bcftools index ${svs}
-    bcftools view -f "PASS" -o ${svs.getSimpleName()}_PASS.vcf $svs $params.subset_calls
-    bcftools stats ${svs.getSimpleName()}_PASS.vcf > ./${svs.getSimpleName()}_PASS.vchk
+    bcftools view -f "PASS" -o ${svs.getSimpleName()}_PASS.vcf.gz $svs $params.subset_calls
+    bcftools stats ${svs.getSimpleName()}_PASS.vcf.gz > ./${svs.getSimpleName()}_PASS.vchk
     """
 }
 
@@ -76,14 +76,14 @@ process variant_filtering {
     path variants
 
     output:
-    path "${variants.getSimpleName()}_PASS.vcf", emit: variants_pass
+    path "${variants.getSimpleName()}_PASS.vcf.gz", emit: variants_pass
     path "${variants.getSimpleName()}_PASS.vchk", emit: vcfstats
 
     script:
     """
     bcftools index ${variants}
-    bcftools view -f "PASS" -e 'ILEN >= 30 | ILEN <= -30' --trim-alt-alleles -o ${variants.getSimpleName()}_PASS.vcf $variants $params.subset_calls
-    bcftools stats ${variants.getSimpleName()}_PASS.vcf > ./${variants.getSimpleName()}_PASS.vchk
+    bcftools view -f "PASS" -e 'ILEN >= 30 | ILEN <= -30' --trim-alt-alleles -o ${variants.getSimpleName()}_PASS.vcf.gz $variants $params.subset_calls
+    bcftools stats ${variants.getSimpleName()}_PASS.vcf.gz > ./${variants.getSimpleName()}_PASS.vchk
     """
 }
 
