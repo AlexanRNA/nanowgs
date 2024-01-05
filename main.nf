@@ -300,6 +300,8 @@ workflow fastq_process {
     parallel_gzip_gfa ( shasta.out.assembly_gfa )
 }
 
+
+
 /*
 * SNP calling, longphase, crossstitch
 * 
