@@ -334,6 +334,32 @@ workflow bam_to_crossstitch {
     crossstitch( longphase_phase.out.snv_indel_phased, longphase_phase.out.sv_phased, inputbam, genomeref, params.karyotype )
 }
 
+/*
+* longphase, crossstitch from INDEL and SV calls
+* 
+*/
+workflow calls_to_crossstitch {
+    // genome
+    genomeref = Channel.fromPath( params.genomeref, checkIfExists: true  )
+    genomerefidx = Channel.fromPath( params.genomerefindex, checkIfExists: true )
+
+    inputclair3 = Channel.fromPath( params.clair_file , checkIfExists: true )
+    inputsniffles = Channel.fromPath( params.sniffles_file , checkIfExists: true )
+
+    inputbam = Channel.fromPath( params.bam , checkIfExists: true )
+    inputbamidx = Channel.fromPath( params.bamidx , checkIfExists: true )
+   
+    filter_snp_indel( inputclair3 )
+
+    // longphase
+    // phasing
+    longphase_phase( genomeref, filter_snp_indel.out.variants_pass, inputsniffles, inputbam, inputbamidx )
+    longphase_tag( longphase_phase.out.snv_indel_phased, longphase_phase.out.sv_phased, inputbam, inputbamidx )
+
+    // crossstitch
+    crossstitch( longphase_phase.out.snv_indel_phased, longphase_phase.out.sv_phased, inputbam, genomeref, params.karyotype )
+}
+
 
 /* 
 * Guppy basecalling
