@@ -374,7 +374,7 @@ workflow crossstitch_cli {
 
     inputbam = Channel.fromPath( params.bam , checkIfExists: true )
     inputbamidx = Channel.fromPath( params.bamidx , checkIfExists: true )
-   
+    
     // crossstitch
     crossstitch( inputclair3, inputsniffles, inputbam, genomeref, params.karyotype )
 }

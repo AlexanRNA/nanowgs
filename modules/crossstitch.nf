@@ -5,7 +5,7 @@
 process create_personal_genome {
     label 'cpu_low'
     label 'mem_low'
-    label 'time_mid'
+    label 'time_low_mid'
     label 'crossstitch'
 
     publishDir path: "${params.outdir}/${params.sampleid}/crossstitch/", mode: 'copy'
