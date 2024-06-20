@@ -97,6 +97,11 @@ In case your data also hase modified bases information, do include `--mod_bases 
 ### Todo
  
 - [ ] make the bam alignment more effective (too time consuming atm)
+- [ ] update sniffles version + size filtering to 50
+- [ ] update clair3 version + size filtering to 50
+- [ ] update longphase version
+- [ ] update dorado version + script
+- [ ] investigate CRAM saving
 
 ### In Progress
 
@@ -104,11 +109,7 @@ In case your data also hase modified bases information, do include `--mod_bases 
 
 
 ### Done ✓
-
-- [x] Create my first TODO.md  
-- [x] update LongPhase to 1.5 
-- [x] update clair3 to 1.0.2 + add new rerio models
-- [x] update dorado to 0.3.2
+ 
 
 
 
