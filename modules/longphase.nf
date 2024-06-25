@@ -30,6 +30,7 @@ process longphase_phase {
         --sv-file $svs \
         -r $reference \
         -b $bam \
+        --indels \
         -o ${params.sampleid}_longphase
     """
 
