@@ -28,8 +28,8 @@ process sniffles_sv_calling {
         --vcf ${params.sampleid}_sniffles_svs.vcf.gz \
         --snf ${params.sampleid}_sniffles_svs.snf \
         --tandem-repeats ${params.tandem_repeats} \
-        --minsvlen ${params.sv_min_size} \
-        --minsupport ${params.sv_min_support} \
+        #--minsvlen ${params.sv_min_size} \
+        #--minsupport ${params.sv_min_support} \
         --reference $reference \
         --output-rnames
         # --phase \

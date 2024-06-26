@@ -82,7 +82,7 @@ process variant_filtering {
     script:
     """
     bcftools index ${variants}
-    bcftools view -f "PASS" -e 'ILEN >= 30 | ILEN <= -30' --trim-alt-alleles -o ${variants.getSimpleName()}_PASS.vcf.gz $variants $params.subset_calls
+    bcftools view -f "PASS" -e 'ILEN >= 50 | ILEN <= -50' --trim-alt-alleles -o ${variants.getSimpleName()}_PASS.vcf.gz $variants $params.subset_calls
     bcftools stats ${variants.getSimpleName()}_PASS.vcf.gz > ./${variants.getSimpleName()}_PASS.vchk
     """
 }
