@@ -23,10 +23,10 @@ process basecall_dorado {
 	    dorado basecaller /opt/dorado/bin/${params.dorado_config} -r \
 	    $reads_pod5 > ${params.sampleid}_mod_calls.bam
         """
-    } else if ( params.rerio_config == '' ) {
+    } else if ( params.rerio_config == '') {
         """
 	    dorado basecaller /opt/dorado/bin/${params.dorado_config} -r \
-	    $reads_pod5 --modified-bases ${params.mod_bases} > ${params.sampleid}_mod_calls.bam
+	    $reads_pod5 --modified-bases-models /opt/dorado/bin/${params.mod_bases} > ${params.sampleid}_mod_calls.bam
         """
     } else { // else use rerio model
         // figure out which modified bases model to use 
