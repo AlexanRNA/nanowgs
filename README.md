@@ -97,15 +97,15 @@ In case your data also hase modified bases information, do include `--mod_bases 
 ### Todo
  
 - [ ] make the bam alignment more effective (too time consuming atm)
-- [ ] update sniffles version + size filtering to 50
-- [ ] update clair3 version + size filtering to 50
-- [ ] update longphase version
 - [ ] update dorado version + script
 - [ ] investigate CRAM saving
 
 ### In Progress
 
 - [ ] modified basecalling QC/checking 
+- [X] update sniffles version + size filtering to 50
+- [X] update clair3 version + size filtering to 50
+- [X] update longphase version
 
 
 ### Done ✓

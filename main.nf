@@ -46,8 +46,6 @@ include { seqtk } from './modules/seqtk'
 
 include { survivor_sv_consensus as survivor } from './modules/survivor'
 
-include { megalodon; megalodon_aggregate } from './modules/megalodon'
-
 include { medaka_snv_calling as medaka_snv } from './modules/medaka'
 include { deepvariant_snv_calling_slurm  as deepvariant } from './modules/deepvariant'
 // include { deepvariant_snv_calling_gpu_parallel as deepvariant_par } from './modules/deepvariant'
@@ -755,15 +753,6 @@ workflow haploid_to_diploid_assembly {
 }
 
 
-// workflow phased_methylation_calls {
-//     take:
-//         ont_base
-//         genomeref
-//         haplotagged_bam
-    
-//     main:
-//         megalodon( genomeref, ont_base )
-// }
 
 workflow wgs_analysis_fastq {
 
@@ -825,10 +814,7 @@ workflow {
     // process reads
     process_reads( genomeref, ont_base )
 
-    // start megalodon
-    if ( params.megalodon_recall ) {
-        megalodon( genomeref, ont_base )
-    }
+
 
     // assembly based variant calling
     assembly_based_variant_calling( process_reads.out.fastq_trimmed )
@@ -843,11 +829,6 @@ workflow {
 
     get_haplotype_readids( reference_based_variant_calling.out.haplotagged_bam )
 
-    if ( params.megalodon_recall ) {
-        megalodon_aggregate( megalodon.out.megalodon_results, get_haplotype_readids.out.hap1ids, get_haplotype_readids.out.hap2ids )
-    } else if ( params.megalodon_dir ) {
-        megalodon_aggregate( Channel.fromPath( params.megalodon_dir, checkIfExists: true  ), get_haplotype_readids.out.hap1ids, get_haplotype_readids.out.hap2ids )
-    }
 
 }
 
