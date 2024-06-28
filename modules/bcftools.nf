@@ -163,3 +163,4 @@ process vcf_concat_sv_snv {
     bcftools concat -a -o snv_indel_sv_concat.vcf reheadered_snv_indels.vcf.gz reheadered_svs.vcf.gz
     """
 }
+

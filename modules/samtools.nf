@@ -111,17 +111,19 @@ process get_haplotype_readids {
 /* 
 * Sam to sorted bam conversion using samtools
 */
-process index_bam {
+process index_bam_longpohase {
     label 'cpu_low'
     label 'mem_low'
     label 'time_low'
     label 'samtools'
 
+    publishDir path: "${params.outdir}/${params.sampleid}/longphase_tag/", mode: 'copy'
+
     input:
     path mapped_bam
 
     output:
-    path "*.bam", emit: bam
+    // path "*.bam", emit: bam
     path "*.bai", emit: bam_index
 
     """

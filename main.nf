@@ -32,7 +32,7 @@ include { filter_reads as filter } from './modules/fastp'
 include { parallel_gzip as pigz; parallel_gzip_assembly; parallel_gzip_gfa } from './modules/pigz'
 
 include { minimap_alignment as minimap } from './modules/minimap2'
-include { sam_to_sorted_bam as samtobam; bam_to_sorted_bam as bamtobam1; bam_to_sorted_bam as bamtobam2; get_haplotype_readids; index_bam ; ubam2fastq ; sam_to_sorted_bam_qscore } from './modules/samtools'
+include { sam_to_sorted_bam as samtobam; bam_to_sorted_bam as bamtobam1; bam_to_sorted_bam as bamtobam2; get_haplotype_readids; index_bam_longpohase ; ubam2fastq ; sam_to_sorted_bam_qscore } from './modules/samtools'
 
 include { sniffles_sv_calling as sniffles } from './modules/sniffles'
 include { svim_sv_calling as svim } from './modules/svim'
@@ -41,7 +41,7 @@ include { dysgu_sv_calling as dysgu } from './modules/dysgu'
 include { svim_sv_filtering as filtersvim; sniffles_sv_filtering as filtersniffles; variant_filtering as filter_snp_indel } from './modules/bcftools'
 include { vcf_concat; vcf_concat_sv_snv as merge_sv_snv } from './modules/bcftools'
 
-include { longphase_phase; longphase_tag } from './modules/longphase'
+include { longphase_phase; longphase_tag; longphase_zip_index} from './modules/longphase'
 include { seqtk } from './modules/seqtk'
 
 include { survivor_sv_consensus as survivor } from './modules/survivor'
@@ -180,7 +180,9 @@ workflow slurm_dorado {
     // longphase
     // phasing
     longphase_phase( genomeref, filter_snp_indel.out.variants_pass, filtersniffles.out.variants_pass, minimap_align_bamout_qscore.out.bam, minimap_align_bamout_qscore.out.idx )
-    longphase_tag( longphase_phase.out.snv_indel_phased, longphase_phase.out.sv_phased, minimap_align_bamout_qscore.out.bam, minimap_align_bamout_qscore.out.idx )
+    longphase_zip_index(longphase_phase.out.snv_indel_phased, longphase_phase.out.sv_phased)
+    longphase_tag( longphase_phase.out.snv_indel_phased, longphase_phase.out.sv_phased, minimap_align_bamout_qscore.out.bam, minimap_align_bamout_qscore.out.idx , genomeref)
+    index_bam_longpohase(longphase_tag.out.haplotagged_bam)
 
      // crossstitch
     crossstitch( longphase_phase.out.snv_indel_phased, longphase_phase.out.sv_phased, minimap_align_bamout_qscore.out.bam, genomeref, params.karyotype )
@@ -240,7 +242,7 @@ workflow slurm_guppy {
     
     // phasing
     longphase_phase( genomeref, filter_snp_indel.out.variants_pass, filtersniffles.out.variants_pass, minimap_align_bamout.out.bam, minimap_align_bamout.out.idx )
-    longphase_tag( longphase_phase.out.snv_indel_phased, longphase_phase.out.sv_phased, minimap_align_bamout.out.bam, minimap_align_bamout.out.idx )
+    longphase_tag( longphase_phase.out.snv_indel_phased, longphase_phase.out.sv_phased, minimap_align_bamout.out.bam, minimap_align_bamout.out.idx , genomeref)
 
     crossstitch( longphase_phase.out.snv_indel_phased, filtersniffles.out.variants_pass, minimap_align_bamout.out.bam, genomeref, params.karyotype )
 
@@ -287,7 +289,7 @@ workflow fastq_process {
     // longphase
     // phasing
     longphase_phase( genomeref, filter_snp_indel.out.variants_pass, filtersniffles.out.variants_pass, minimap_align_bamout.out.bam, minimap_align_bamout.out.idx )
-    longphase_tag( longphase_phase.out.snv_indel_phased, longphase_phase.out.sv_phased, minimap_align_bamout.out.bam, minimap_align_bamout.out.idx )
+    longphase_tag( longphase_phase.out.snv_indel_phased, longphase_phase.out.sv_phased, minimap_align_bamout.out.bam, minimap_align_bamout.out.idx, genomeref )
 
      // crossstitch
     crossstitch( longphase_phase.out.snv_indel_phased, longphase_phase.out.sv_phased, minimap_align_bamout.out.bam, genomeref, params.karyotype )
@@ -326,7 +328,7 @@ workflow bam_to_crossstitch {
     // longphase
     // phasing
     longphase_phase( genomeref, filter_snp_indel.out.variants_pass, filtersniffles.out.variants_pass, inputbam, inputbamidx )
-    longphase_tag( longphase_phase.out.snv_indel_phased, longphase_phase.out.sv_phased, inputbam, inputbamidx )
+    longphase_tag( longphase_phase.out.snv_indel_phased, longphase_phase.out.sv_phased, inputbam, inputbamidx, genomeref )
 
     // crossstitch
     crossstitch( longphase_phase.out.snv_indel_phased, longphase_phase.out.sv_phased, inputbam, genomeref, params.karyotype )
@@ -352,7 +354,7 @@ workflow calls_to_crossstitch {
     // longphase
     // phasing
     longphase_phase( genomeref, filter_snp_indel.out.variants_pass, inputsniffles, inputbam, inputbamidx )
-    longphase_tag( longphase_phase.out.snv_indel_phased, longphase_phase.out.sv_phased, inputbam, inputbamidx )
+    longphase_tag( longphase_phase.out.snv_indel_phased, longphase_phase.out.sv_phased, inputbam, inputbamidx, genomeref )
 
     // crossstitch
     crossstitch( longphase_phase.out.snv_indel_phased, longphase_phase.out.sv_phased, inputbam, genomeref, params.karyotype )
@@ -772,7 +774,7 @@ workflow wgs_analysis_fastq {
     filtersniffles( sniffles.out.sv_calls )
 
     longphase_phase( genomeref, filter_snp_indel.out.variants_pass, filtersniffles.out.variants_pass, minimap_align_bamout.out.bam, minimap_align_bamout.out.idx )
-    longphase_tag( longphase_phase.out.snv_indel_phased, longphase_phase.out.sv_phased, minimap_align_bamout.out.bam, minimap_align_bamout.out.idx )
+    longphase_tag( longphase_phase.out.snv_indel_phased, longphase_phase.out.sv_phased, minimap_align_bamout.out.bam, minimap_align_bamout.out.idx , genomeref)
 
     // seqtk( longphase_tag.out.hap1ids, longphase_tag.out.hap2ids, process_reads.out.fastq_trimmed )
     // prepare_svs_stitch( longphase_phase.out.sv_phased, genomeref )

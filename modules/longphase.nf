@@ -8,7 +8,7 @@ process longphase_phase {
     label 'time_low'
     label 'longphase'
 
-    publishDir path: "${params.outdir}/${params.sampleid}/longphase_phase/", mode: 'copy'
+    // publishDir path: "${params.outdir}/${params.sampleid}/longphase_phase/", mode: 'copy'
 
     input:
     path reference
@@ -35,6 +35,8 @@ process longphase_phase {
     """
 
 }
+
+
 
 
 
@@ -77,4 +79,37 @@ process longphase_tag {
     grep "1$" haplotagged_all.out | cut -f1 > hap1ids
     grep "2$" haplotagged_all.out | cut -f1 > hap2ids
     '''
+}
+
+/*
+* zipping and indexing Longphase VCF output
+*/
+process longphase_zip_index {
+    label 'cpu_low'
+    label 'mem_low'
+    label 'time_low'
+    label 'bcftools'
+
+    publishDir path: "${params.outdir}/${params.sampleid}/longphase_phase/", mode: 'copy'
+
+    input:
+    path snv_indels
+    path svs
+
+    output:
+    path "${params.sampleid}_longphase.vcf.gz"
+    path "${params.sampleid}_longphase.vcf.gz.csi"
+    path "${params.sampleid}_longphase_SV.vcf.gz"
+    path "${params.sampleid}_longphase_SV.vcf.gz.csi"
+
+    script:
+    """
+    bgzip $snv_indels
+    bgzip $svs
+    bcftools index ${snv_indels}.gz
+    bcftools index ${svs}.gz
+    
+    """
+
+
 }
