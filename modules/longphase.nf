@@ -54,6 +54,7 @@ process longphase_tag {
     path svs
     path bam
     path bamidx
+    path reference
 
     output:
     path "${params.sampleid}_haplotagged.bam", emit: haplotagged_bam
@@ -67,7 +68,7 @@ process longphase_tag {
         -t !{task.cpus} \
         -s !{snv_indel} \
         --sv-file !{svs} \
-        --percentageThreshold=0.51 \
+        -r !{reference} \
         --log \
         -o !{params.sampleid}_haplotagged
     
