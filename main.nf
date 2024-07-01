@@ -185,7 +185,7 @@ workflow slurm_dorado {
     index_bam_longpohase(longphase_tag.out.haplotagged_bam)
 
      // crossstitch
-    crossstitch( longphase_phase.out.snv_indel_phased, longphase_phase.out.sv_phased, minimap_align_bamout_qscore.out.bam, genomeref, params.karyotype )
+    // crossstitch( longphase_phase.out.snv_indel_phased, longphase_phase.out.sv_phased, minimap_align_bamout_qscore.out.bam, genomeref, params.karyotype )
 
     // TODO
     // add annotation dfam R script
