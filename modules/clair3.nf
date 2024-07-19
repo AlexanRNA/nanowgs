@@ -2,7 +2,7 @@ process clair3_variant_calling {
     label 'cpu_high'
     label 'memory_mid'
     label 'time_mid'
-    label ( workflow.profile.contains('slurm') ? 'wice_bigmem' : 'cpu_high')
+    // label ( workflow.profile.contains('slurm') ? 'wice_bigmem' : 'cpu_high')
 
     label 'clair3'
 

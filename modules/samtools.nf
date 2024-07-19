@@ -7,7 +7,7 @@ process sam_to_sorted_bam {
     label 'mem_mid'
     label 'time_high'
     label 'samtools'
-    label ( workflow.profile.contains('slurm') ? 'wice_bigmem' : 'cpu_high')
+//   label ( workflow.profile.contains('slurm') ? 'wice_bigmem' : 'cpu_high')
 
     publishDir path: "${params.outdir}/${params.sampleid}/minimap_alignment/", mode: 'copy'
     // publishDir path: "${params.outdir}/${params.sampleid}/${task.process}/", mode: 'copy',
@@ -49,7 +49,7 @@ process bam_to_sorted_bam {
     label 'mem_mid'
     label 'time_mid'
     label 'samtools'
-    label ( workflow.profile.contains('slurm') ? 'wice_bigmem' : 'cpu_high')
+ //   label ( workflow.profile.contains('slurm') ? 'wice_bigmem' : 'cpu_high')
 
 
     input:
@@ -159,11 +159,11 @@ process ubam2fastq {
 * Sam to sorted bam conversion using samtools with qscore filtering
 */
 process sam_to_sorted_bam_qscore {
-    label 'cpu_high'
-    label 'mem_mid'
+    label 'cpu_highest'
+    label 'mem_high'
     label 'time_mid'
     label 'samtools'
-    label ( workflow.profile.contains('slurm') ? 'wice_bigmem' : 'cpu_high')
+   // label ( workflow.profile.contains('slurm') ? 'wice_bigmem' : 'cpu_high')
 
     publishDir path: "${params.outdir}/${params.sampleid}/minimap_alignment/", mode: 'copy'
     // publishDir path: "${params.outdir}/${params.sampleid}/${task.process}/", mode: 'copy',
