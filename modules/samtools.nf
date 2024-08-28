@@ -159,11 +159,11 @@ process ubam2fastq {
 * Sam to sorted bam conversion using samtools with qscore filtering
 */
 process sam_to_sorted_bam_qscore {
-    label 'cpu_highest'
+    label 'cpu_low'
     label 'mem_high'
     label 'time_mid'
     label 'samtools'
-   // label ( workflow.profile.contains('slurm') ? 'wice_bigmem' : 'cpu_high')
+    label ( workflow.profile.contains('slurm') ? 'wice_bigmem' : 'cpu_high')
 
     publishDir path: "${params.outdir}/${params.sampleid}/minimap_alignment/", mode: 'copy'
     // publishDir path: "${params.outdir}/${params.sampleid}/${task.process}/", mode: 'copy',

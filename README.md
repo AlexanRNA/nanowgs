@@ -91,6 +91,8 @@ In case your data also hase modified bases information, do include `--mod_bases 
 -with-timeline -with-report
 ```
 
+Cite this code: [![DOI](https://zenodo.org/badge/409126757.svg)](https://zenodo.org/doi/10.5281/zenodo.13385064)
+
 
 # TODO
 
@@ -110,7 +112,7 @@ In case your data also hase modified bases information, do include `--mod_bases 
 
 ### Done ✓
  
-
-
+## Cite this work
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13385065.svg)](https://doi.org/10.5281/zenodo.13385065)
 
 
