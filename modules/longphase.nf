@@ -49,7 +49,8 @@ process longphase_tag {
     label 'time_low'
     label 'longphase'
 
-    publishDir path: "${params.outdir}/${params.sampleid}/longphase_tag/", mode: 'copy'
+    // 20240912 - no cpying of longphase output
+    // publishDir path: "${params.outdir}/${params.sampleid}/longphase_tag/", mode: 'copy'
 
     input:
     path snv_indel

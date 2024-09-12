@@ -198,26 +198,45 @@ process sam_to_sorted_bam_qscore {
 
 }
 
-// /* 
-// * Index a fasta file
-// */
-// process index_fasta {
-//     label 'cpu_low'
-//     label 'mem_low'
-//     label 'time_low'
-//     label 'samtools'
 
-//     input:
-//     path fasta
+process sam_untag {
+    label 'cpu_mid'
+    label 'mem_high'
+    label 'time_mid'
+    label 'samtools'
 
-//     output:
-//     path "*.fai", emit: faidx
-//     stdout emit: contig
+    input:
+    path tagged_bam
 
-//     script:
-//     """
-//     samtools faidx $fasta
-//     cat *.fai | cut -f 1
-//     """
+    output:
+    path "${params.sampleid}_notag.bam", emit: notag_bam
+    path "${params.sampleid}_notag.bam.bai", emit: notag_bam_index
 
-// }
+    script:
+    """
+    samtools view -@ $task.cpus -x HP,PS -u $tagged_bam -o ${params.sampleid}_notag.bam
+    samtools index -@ $task.cpus  ${params.sampleid}_notag.bam
+    """
+}
+
+process sam2cram {
+    label 'cpu_mid'
+    label 'mem_high'
+    label 'time_mid'
+    label 'samtools'
+
+    publishDir path: "${params.outdir}/${params.sampleid}/cram_phased/", mode: 'copy'
+
+    input:
+    path phased_bam
+    path refgenome
+
+    output:
+    path "${params.sampleid}_phased.cram", emit: cram
+    path "${params.sampleid}_phased.cram.crai", emit: cram_index
+
+    script:
+    """
+    samtools view -@ $task.cpus -T $refgenome  --write-index -O cram,store_md=1,store_nm=1 -o ${params.sampleid}_phased.cram $phased_bam
+    """
+}

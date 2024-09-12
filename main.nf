@@ -32,7 +32,7 @@ include { filter_reads as filter } from './modules/fastp'
 include { parallel_gzip as pigz; parallel_gzip_assembly; parallel_gzip_gfa } from './modules/pigz'
 
 include { minimap_alignment as minimap } from './modules/minimap2'
-include { sam_to_sorted_bam as samtobam; bam_to_sorted_bam as bamtobam1; bam_to_sorted_bam as bamtobam2; get_haplotype_readids; index_bam_longpohase ; ubam2fastq ; sam_to_sorted_bam_qscore } from './modules/samtools'
+include { sam_to_sorted_bam as samtobam; bam_to_sorted_bam as bamtobam1; bam_to_sorted_bam as bamtobam2; get_haplotype_readids; index_bam_longpohase ; ubam2fastq ; sam_to_sorted_bam_qscore; sam_untag; sam2cram } from './modules/samtools'
 
 include { sniffles_sv_calling as sniffles } from './modules/sniffles'
 include { svim_sv_calling as svim } from './modules/svim'
@@ -303,10 +303,10 @@ workflow fastq_process {
 
 
 /*
-* SNP calling, longphase, crossstitch
+* SNP calling, longphase, output CRAM
 * 
 */
-workflow bam_to_crossstitch {
+workflow bam_rephasing {
     // genome
     genomeref = Channel.fromPath( params.genomeref, checkIfExists: true  )
     genomerefidx = Channel.fromPath( params.genomerefindex, checkIfExists: true )
@@ -324,14 +324,17 @@ workflow bam_to_crossstitch {
     extract_SV_lengths( filtersniffles.out.variants_pass )
     plot_SV_lengths( extract_SV_lengths.out.dels, extract_SV_lengths.out.ins)
 
+    // TODO test sam untag
+    sam_untag(inputbam)
 
     // longphase
     // phasing
-    longphase_phase( genomeref, filter_snp_indel.out.variants_pass, filtersniffles.out.variants_pass, inputbam, inputbamidx )
-    longphase_tag( longphase_phase.out.snv_indel_phased, longphase_phase.out.sv_phased, inputbam, inputbamidx, genomeref )
+    longphase_phase( genomeref, filter_snp_indel.out.variants_pass, filtersniffles.out.variants_pass, sam_untag.out.notag_bam, sam_untag.out.notag_bam_index )
+    longphase_tag( longphase_phase.out.snv_indel_phased, longphase_phase.out.sv_phased, sam_untag.out.notag_bam, sam_untag.out.notag_bam_index, genomeref )
+    longphase_zip_index(longphase_phase.out.snv_indel_phased, longphase_phase.out.sv_phased)
+    sam2cram(longphase_tag.out.haplotagged_bam, genomeref)
+    
 
-    // crossstitch
-    crossstitch( longphase_phase.out.snv_indel_phased, longphase_phase.out.sv_phased, inputbam, genomeref, params.karyotype )
 }
 
 /*
