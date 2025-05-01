@@ -112,6 +112,7 @@ In case your data also hase modified bases information, do include `--mod_bases 
 ### Done ✓
  
 ## Cite this work
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13385065.svg)](https://doi.org/10.5281/zenodo.13385065)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13385064.svg)](https://doi.org/10.5281/zenodo.13385064)
+
 
 
